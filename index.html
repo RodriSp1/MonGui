@@ -1,0 +1,1975 @@
+<!DOCTYPE html>
+<!--
+  ================================================================
+  MonGui · aprende guitarra, ukulele y flauta 🐒🎸
+  ================================================================
+  Todo el sitio vive en ESTE archivo (HTML + CSS + JS), sin librerías.
+  Así de simple se sube a GitHub Pages o a Vercel.
+
+  Cómo está armado (de arriba a abajo):
+    1. El bloque de estilos (style) -> los colores y el diseño. Los colores están en :root, cámbialos ahí.
+    2. El cuerpo (body)  -> las secciones de la página (una por tema).
+    3. El bloque script  -> la lógica. Está dividido en bloques con títulos
+                    del tipo  /* ====== ALGO ====== */  para ubicarte rápido.
+
+  Carpetas que acompañan a este archivo (ver README.md):
+    sonidos/     -> tus grabaciones de acordes y rasgueos por instrumento
+    canciones/   -> tus canciones grabadas para el repertorio
+
+  Tip: para probar en tu compu usa "Live Server" de VS Code. Si abres el
+  archivo con doble clic, el navegador no deja leer las carpetas de audio.
+  ================================================================
+-->
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>MonGui | Aprende guitarra: acordes, rasgueos y canciones</title>
+<meta name="description" content="Trouncando ando: Guía para aprender a tocar guitarra desde cero: afinación, acordes con sonido, patrones de rasgueo y buscador de letras y acordes de canciones.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@500;700;800&family=Instrument+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  /* Aquí viven los colores y fuentes de todo el sitio.
+     Si quieres cambiar la paleta, este es EL lugar. */
+  :root {
+    --papel: #fff3c4;
+    --tinta: #2b1a10;
+    --gris: #6d5646;
+    --azul: #1e9b50;
+    --amarillo: #ffc72c;
+    --blanco: #ffffff;
+    --linea: #e8d79b;
+    --titulo: "Bricolage Grotesque", "Trebuchet MS", sans-serif;
+    --texto: "Instrument Sans", "Segoe UI", sans-serif;
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; scroll-padding-top: 70px; }
+  body {
+    margin: 0; background: var(--papel); color: var(--tinta);
+    font-family: var(--texto); font-size: 1.05rem; line-height: 1.6;
+  }
+  h1, h2, h3 { font-family: var(--titulo); line-height: 1.1; margin: 0; }
+  a { color: var(--azul); }
+  :focus-visible { outline: 3px solid var(--azul); outline-offset: 2px; }
+  .wrap { max-width: 1040px; margin: 0 auto; padding: 0 20px; }
+
+  /* Navegación */
+  nav {
+    position: sticky; top: 0; z-index: 10;
+    background: var(--tinta); color: #fff;
+  }
+  nav .wrap { display: flex; align-items: center; justify-content: space-between; gap: 16px; min-height: 54px; flex-wrap: wrap; }
+  nav strong { font-family: var(--titulo); font-size: 1.15rem; }
+  nav ul { list-style: none; margin: 0; padding: 0; display: flex; gap: 18px; flex-wrap: wrap; }
+  nav a { color: #fff; text-decoration: none; font-weight: 500; font-size: .95rem; }
+  nav a:hover { color: var(--amarillo); }
+
+  /* Hero: las cuerdas */
+  .hero { background: var(--tinta); color: #fff; padding: 48px 0 56px; }
+  .hero h1 { font-size: clamp(2.3rem, 6vw, 4.2rem); font-weight: 800; max-width: 14ch; }
+  .eslogan { font-family: var(--titulo); font-weight: 800; font-size: clamp(1.4rem, 3.5vw, 2rem); color: var(--amarillo); margin: 0 0 12px; }
+  .hero p.lead { font-size: 1.15rem; color: #f1e2b8; max-width: 52ch; margin: 18px 0 32px; }
+  .cuerdas { display: grid; gap: 0; max-width: 760px; }
+  .cuerda {
+    display: grid; grid-template-columns: 48px 1fr; align-items: center;
+    background: none; border: 0; padding: 9px 0; cursor: pointer; width: 100%;
+    color: #fff; font: inherit; text-align: left;
+  }
+  .cuerda .nota { font-family: var(--titulo); font-weight: 700; font-size: 1.1rem; color: var(--amarillo); }
+  .cuerda .hilo { display: block; height: var(--g); background: linear-gradient(90deg, #d6dde6, #9fb0c4); border-radius: 3px; transform-origin: center; }
+  .cuerda.vibra .hilo { animation: vibrar .9s ease-out; }
+  @keyframes vibrar {
+    0% { transform: scaleY(1); } 8% { transform: scaleY(3.2) translateY(-2px); } 16% { transform: scaleY(1) translateY(2px); }
+    28% { transform: scaleY(2.4) translateY(-1px); } 40% { transform: scaleY(1.2); } 55% { transform: scaleY(1.7); } 100% { transform: scaleY(1); }
+  }
+  .hint { color: #d9c79a; font-size: .95rem; margin-top: 14px; }
+
+  /* Secciones */
+  section.bloque { padding: 64px 0 8px; }
+  section.bloque > .wrap > h2 { font-size: clamp(1.8rem, 4vw, 2.6rem); margin-bottom: 10px; }
+  .intro { color: var(--gris); max-width: 62ch; margin: 0 0 26px; }
+
+  .pasos { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 16px; }
+  .tarjeta { background: var(--blanco); border: 2px solid var(--tinta); border-radius: 12px; padding: 18px 20px; }
+  .tarjeta h3 { font-size: 1.2rem; margin-bottom: 8px; }
+  .tarjeta p { margin: 0; color: var(--gris); font-size: .98rem; }
+
+  /* Acordes */
+  .acordes { display: grid; grid-template-columns: repeat(auto-fill, minmax(128px, 1fr)); gap: 12px; }
+  .acorde {
+    background: var(--blanco); border: 2px solid var(--tinta); border-radius: 12px;
+    padding: 8px 6px 10px; cursor: pointer; font: inherit; color: var(--tinta); text-align: center;
+  }
+  .acorde:hover, .acorde.suena { background: var(--amarillo); }
+  .acorde svg { width: 100%; height: auto; display: block; }
+  .acorde .nombre { font-family: var(--titulo); font-weight: 700; font-size: 1.15rem; }
+  .acorde .tipo { font-size: .8rem; color: var(--gris); display: block; }
+
+  .progresiones { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 14px; margin-top: 26px; }
+  .prog { background: var(--blanco); border: 2px solid var(--tinta); border-radius: 12px; padding: 16px 18px; }
+  .prog h3 { font-size: 1.05rem; margin-bottom: 4px; }
+  .prog p { margin: 0 0 12px; font-size: .92rem; color: var(--gris); }
+  .prog .cadena { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 12px; }
+  .chip { border: 2px solid var(--tinta); border-radius: 8px; padding: 2px 10px; font-weight: 600; font-family: var(--titulo); background: var(--papel); }
+  .chip.on { background: var(--amarillo); }
+
+  button.accion {
+    font: inherit; font-weight: 600; cursor: pointer; border: 2px solid var(--tinta);
+    background: var(--azul); color: #fff; border-radius: 10px; padding: 9px 18px;
+  }
+  button.accion:hover { background: #157a3f; }
+  button.accion.sec { background: #fff; color: var(--tinta); }
+  button.accion.sec:hover { background: var(--amarillo); }
+
+  /* Rasgueos */
+  .panel { background: var(--blanco); border: 2px solid var(--tinta); border-radius: 14px; padding: 22px; }
+  .controles { display: flex; gap: 18px; flex-wrap: wrap; align-items: end; margin-bottom: 20px; }
+  .controles label { display: grid; gap: 4px; font-weight: 600; font-size: .92rem; }
+  .controles select, .controles input[type=text] {
+    font: inherit; padding: 8px 10px; border: 2px solid var(--tinta); border-radius: 8px; background: #fff; color: var(--tinta);
+  }
+  .controles input[type=range] { width: 180px; accent-color: var(--azul); }
+  .patrones { display: grid; gap: 12px; }
+  .patron { display: grid; grid-template-columns: minmax(140px, 200px) 1fr; gap: 14px; align-items: center; border: 2px solid var(--linea); border-radius: 12px; padding: 10px 12px; }
+  .patron.activo { border-color: var(--tinta); background: #fff8e0; }
+  .patron h3 { font-size: 1rem; }
+  .patron small { display: block; color: var(--gris); font-size: .85rem; line-height: 1.3; margin-top: 2px; }
+  .slots { display: grid; grid-template-columns: repeat(8, 1fr); gap: 4px; }
+  .slot { text-align: center; padding: 4px 0; border-radius: 8px; border: 2px solid transparent; }
+  .slot .cuenta { display: block; font-size: .75rem; color: var(--gris); }
+  .slot .flecha { display: block; font-family: var(--titulo); font-weight: 800; font-size: 1.5rem; line-height: 1.2; }
+  .slot .flecha.vacio { color: var(--linea); }
+  .slot.on { background: var(--amarillo); border-color: var(--tinta); }
+  .patron-btns { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+
+  /* Buscador */
+  .resultados { display: grid; gap: 8px; margin-top: 18px; }
+  .res {
+    display: flex; align-items: center; gap: 12px; text-align: left; font: inherit; cursor: pointer;
+    border: 2px solid var(--linea); border-radius: 10px; background: #fff; padding: 8px 12px; color: var(--tinta);
+  }
+  .res:hover, .res.sel { border-color: var(--tinta); background: #fff8e0; }
+  .res img { width: 44px; height: 44px; border-radius: 6px; background: var(--papel); flex: none; }
+  .res strong { display: block; line-height: 1.2; }
+  .res span { color: var(--gris); font-size: .9rem; }
+  .cancion { margin-top: 22px; display: grid; grid-template-columns: 1.4fr 1fr; gap: 20px; align-items: start; }
+  .cancion h3 { font-size: 1.5rem; margin-bottom: 2px; }
+  .letra { white-space: pre-wrap; background: var(--papel); border-radius: 10px; padding: 16px; max-height: 460px; overflow: auto; margin: 12px 0 0; line-height: 1.7; }
+  .enlaces { display: grid; gap: 8px; }
+  .enlaces a {
+    display: block; text-decoration: none; color: var(--tinta); font-weight: 600;
+    border: 2px solid var(--tinta); border-radius: 10px; padding: 10px 14px; background: #fff;
+  }
+  .enlaces a:hover { background: var(--amarillo); }
+  .enlaces a small { display: block; font-weight: 400; color: var(--gris); }
+  .msg { margin: 14px 0 0; color: var(--gris); }
+  .msg.error { color: #b3261e; font-weight: 600; }
+
+  /* Práctica */
+  .semanas { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 14px; }
+  .semana { border-left: 6px solid var(--azul); background: var(--blanco); padding: 14px 18px; border-radius: 0 12px 12px 0; }
+  .semana h3 { font-size: 1.1rem; margin-bottom: 4px; }
+  .semana p { margin: 0; color: var(--gris); font-size: .96rem; }
+  .errores { margin: 26px 0 0; padding-left: 20px; max-width: 70ch; }
+  .errores li { margin-bottom: 6px; }
+
+  footer { margin-top: 72px; background: var(--tinta); color: #f1e2b8; padding: 28px 0; font-size: .92rem; }
+  footer a { color: var(--amarillo); }
+
+  .medidor { position: relative; height: 16px; border: 2px solid var(--tinta); border-radius: 8px; background: linear-gradient(90deg,#ffd84d,#7be07b 44%,#7be07b 56%,#ffd84d); margin: 18px 0 10px; }
+  .aguja { position: absolute; top: -8px; left: 50%; width: 5px; height: 28px; background: var(--tinta); border-radius: 3px; transition: left .12s; }
+  .nota-grande { font-family: var(--titulo); font-size: 3.4rem; font-weight: 800; line-height: 1; }
+  .af-cuerdas { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 14px; }
+  .tabs { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 18px; }
+  .tabs button[aria-selected="true"] { background: var(--tinta); color: #fff; }
+  .inst { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px; }
+
+  .creador { display: flex; align-items: center; gap: 22px; flex-wrap: wrap; background: var(--tinta); color: #fff; border-radius: 14px; padding: 26px; }
+  .creador h3 { font-size: 1.8rem; }
+  .creador p { margin: 4px 0 0; color: #f1e2b8; }
+  .redes { display: flex; gap: 10px; flex-wrap: wrap; margin-left: auto; }
+  .redes a { display: inline-flex; align-items: center; gap: 8px; text-decoration: none; font-weight: 600; color: var(--tinta); background: var(--amarillo); border: 2px solid var(--amarillo); border-radius: 10px; padding: 10px 16px; }
+  .redes a:hover { background: #fff; border-color: #fff; }
+  .redes svg { width: 20px; height: 20px; fill: currentColor; }
+
+  .letra.con-acordes { white-space: normal; line-height: 1; }
+  .ln { margin-bottom: 8px; min-height: 1.4em; }
+  .w { display: inline-flex; flex-direction: column; margin-right: .45em; cursor: pointer; vertical-align: bottom; }
+  .w .ch { min-height: 1.35em; color: var(--azul); font-family: var(--titulo); font-weight: 800; font-size: .95rem; }
+  .w .t { line-height: 1.5; border-radius: 4px; }
+  .w:hover .t { background: var(--amarillo); }
+  .accion.on { background: var(--tinta) !important; color: #fff !important; }
+  .compas { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; background: #fff; border: 2px solid var(--linea); border-radius: 12px; padding: 8px 12px; }
+  .compas.on { border-color: var(--tinta); background: var(--amarillo); }
+  .compas b { font-family: var(--titulo); font-size: 1.2rem; width: 26px; }
+  .compas select { font: inherit; padding: 6px 8px; border: 2px solid var(--tinta); border-radius: 8px; background: #fff; color: var(--tinta); flex: 1 1 130px; }
+  .compas button { font: inherit; font-size: .9rem; cursor: pointer; border: 2px solid var(--tinta); border-radius: 8px; background: #fff; padding: 5px 10px; color: var(--tinta); }
+  .compas button:hover { background: var(--papel); }
+  .check { display: flex !important; flex-direction: row; align-items: center; gap: 8px !important; }
+
+  .slotsnd { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 12px; margin: 12px 0 24px; }
+  .slotsnd .tarjeta { padding: 12px 14px; }
+  .slotsnd h3 { font-size: 1.05rem; margin-bottom: 2px; }
+  .slotsnd .ruta { display: block; font-size: .78rem; color: var(--gris); word-break: break-all; }
+  .fila { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; margin-top: 8px; font-size: .9rem; }
+  .fila .accion { padding: 4px 10px; font-size: .85rem; cursor: pointer; margin: 0; }
+  .fila input[type=file] { display: none; }
+  .fila small { color: var(--gris); } .fila small.ok { color: #17803d; font-weight: 600; }
+  details.tarjeta summary { cursor: pointer; font-weight: 700; }
+  details.tarjeta pre { overflow: auto; font-size: .88rem; line-height: 1.5; margin: 12px 0 0; }
+
+  /* Esta parte va después de lo básico y le da la personalidad MonGui:
+     bordes gruesos, sombras duras tipo sticker y los monitos animados.
+     Como CSS lee de arriba a abajo, lo de aquí gana sobre lo de arriba. */
+  /* ===== Estilo MonGui: stickers de monitos, bordes gruesos y sombras duras ===== */
+  body { background-color: var(--papel); background-image: radial-gradient(rgba(43,26,16,.09) 1.6px, transparent 1.6px); background-size: 22px 22px; }
+  .sticker { filter: drop-shadow(3px 0 0 #fff) drop-shadow(-3px 0 0 #fff) drop-shadow(0 3px 0 #fff) drop-shadow(0 -3px 0 #fff) drop-shadow(4px 6px 0 rgba(0,0,0,.28)); overflow: visible; }
+  nav { border-bottom: 4px solid var(--amarillo); }
+  nav .logo { display: inline-flex; align-items: center; gap: 8px; font-size: 1.4rem; }
+  nav .logo svg { width: 34px; height: 34px; }
+  .hero { position: relative; overflow: hidden; border-bottom: 5px solid var(--amarillo); }
+  .hero .wrap { position: relative; }
+  .mono-hero { float: right; position: relative; width: min(250px, 42vw); margin: 0 0 12px 18px; background: none; border: 0; padding: 0; cursor: pointer; animation: balanceo 3.2s ease-in-out infinite; }
+  .mono-hero svg { width: 100%; height: auto; display: block; }
+  .mono-hero.salta { animation: salto .5s ease; }
+  .bocadillo { position: absolute; top: -6px; left: -18px; background: var(--amarillo); color: var(--tinta); font-family: var(--titulo); font-weight: 800; padding: 4px 12px; border: 3px solid var(--tinta); border-radius: 14px 14px 14px 2px; transform: rotate(-8deg); }
+  .banana { position: absolute; width: 56px; height: 56px; opacity: .95; animation: flota 4s ease-in-out infinite; pointer-events: none; }
+  .banana.b1 { left: 52%; top: 8px; transform: rotate(20deg); } .banana.b2 { right: 3%; bottom: 20px; width: 44px; height: 44px; animation-delay: -2s; }
+  .cuerdas { clear: both; }
+  @keyframes balanceo { 0%,100% { transform: rotate(-3deg); } 50% { transform: rotate(3deg) translateY(-4px); } }
+  @keyframes salto { 0% { transform: scale(1); } 40% { transform: scale(1.12) rotate(-6deg) translateY(-14px); } 100% { transform: scale(1); } }
+  @keyframes flota { 0%,100% { translate: 0 0; } 50% { translate: 0 -12px; } }
+  h2 { display: flex; align-items: center; gap: 12px; }
+  h2 .ico { width: 46px; height: 46px; flex: none; transform: rotate(var(--r, -6deg)); }
+  section.bloque > .wrap > h2 { text-shadow: 3px 3px 0 var(--amarillo); }
+  .tarjeta, .panel, .prog, .acorde, .patron, .res, .compas, details.tarjeta { border-width: 3px; border-radius: 18px; box-shadow: 5px 5px 0 var(--tinta); }
+  .patron { border-color: var(--tinta); } .res { border-color: var(--tinta); }
+  .acorde, .res, .compas { transition: transform .12s; }
+  .acorde:hover { transform: translateY(-3px) rotate(-1.2deg); }
+  button.accion { border-radius: 999px; box-shadow: 3px 3px 0 var(--tinta); transition: transform .08s, box-shadow .08s; }
+  button.accion:active, label.accion:active { transform: translate(2px, 2px); box-shadow: 1px 1px 0 var(--tinta); }
+  .fila .accion, .compas button, .acorde { box-shadow: 3px 3px 0 var(--tinta); }
+  .acordes .acorde { box-shadow: 4px 4px 0 var(--tinta); }
+  .chip { background: var(--amarillo); border-radius: 999px; }
+  .creador { position: relative; border: 4px solid var(--amarillo); border-radius: 22px; box-shadow: 6px 6px 0 var(--tinta); padding-left: 150px; }
+  .creador .mono-creador { position: absolute; left: 16px; top: 50%; width: 120px; height: 106px; margin-top: -53px; transform: rotate(-6deg); }
+  .stickers-pie { display: flex; gap: 22px; justify-content: center; margin: 0 0 18px; }
+  .stickers-pie svg { width: 64px; height: 64px; }
+  .stickers-pie svg:nth-child(odd) { transform: rotate(-8deg); } .stickers-pie svg:nth-child(even) { transform: rotate(7deg); }
+  /* Digitaciones de flauta */
+  .acordes.flauta { grid-template-columns: repeat(auto-fill, minmax(215px, 1fr)); }
+  .acorde .fl-row { display: flex; gap: 6px; justify-content: center; padding: 8px 2px 4px; }
+  .acorde .fl-row svg { width: 44px; height: auto; }
+  .fk { fill: #fff; stroke: var(--tinta); stroke-width: 1.6; } .fk.on { fill: var(--tinta); }
+  .ftubo { fill: #fff8e0; stroke: var(--tinta); stroke-width: 1.5; }
+  .fn { font: 700 11px var(--titulo); fill: var(--tinta); }
+  @media (prefers-reduced-motion: reduce) { .mono-hero, .banana { animation: none; } }
+  @media (max-width: 560px) { .creador { padding-left: 26px; padding-top: 120px; } .creador .mono-creador { top: 14px; left: 50%; margin-left: -60px; margin-top: 0; } }
+
+  #aviso { position: fixed; bottom: 20px; left: 50%; transform: translate(-50%, 20px); background: var(--tinta); color: #fff; padding: 10px 18px; border: 3px solid var(--amarillo); border-radius: 999px; font-weight: 600; opacity: 0; pointer-events: none; transition: .25s; z-index: 50; max-width: 92vw; text-align: center; }
+  #aviso.ver { opacity: 1; transform: translate(-50%, 0); }
+
+  .fh { fill: #fff; stroke: var(--tinta); stroke-width: 1.7; } .fh.c { fill: var(--tinta); }
+  .fn { font: 800 12px var(--titulo); fill: var(--tinta); } .fn2 { font: 600 8px var(--texto); fill: var(--gris); }
+  .acorde .nombre { font-size: 1rem; }
+  .ld { display: inline-block; margin-right: 12px; } .ld::before { content: ""; display: inline-block; width: 12px; height: 12px; border-radius: 50%; background: var(--c); border: 2px solid var(--tinta); margin-right: 5px; vertical-align: -2px; }
+  #catTabs { margin: 4px 0 16px; }
+
+  @media (max-width: 760px) {
+    .patron { grid-template-columns: 1fr; }
+    .cancion { grid-template-columns: 1fr; }
+    nav ul { gap: 12px; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+    .cuerda.vibra .hilo { animation: none; }
+  }
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+  <defs>
+    <symbol id="mono-cara" viewBox="0 0 120 120">
+      <circle cx="16" cy="62" r="15" fill="#8a5528" stroke="#2b1a10" stroke-width="3"/><circle cx="16" cy="62" r="8" fill="#f4c892"/>
+      <circle cx="104" cy="62" r="15" fill="#8a5528" stroke="#2b1a10" stroke-width="3"/><circle cx="104" cy="62" r="8" fill="#f4c892"/>
+      <circle cx="60" cy="58" r="44" fill="#8a5528" stroke="#2b1a10" stroke-width="3"/>
+      <path d="M60 44C52 28 28 36 32 58C26 76 42 100 60 100C78 100 94 76 88 58C92 36 68 28 60 44Z" fill="#f4c892" stroke="#2b1a10" stroke-width="2.5"/>
+      <circle cx="47" cy="58" r="6" fill="#2b1a10"/><circle cx="73" cy="58" r="6" fill="#2b1a10"/>
+      <circle cx="49" cy="56" r="2" fill="#fff"/><circle cx="75" cy="56" r="2" fill="#fff"/>
+      <ellipse cx="60" cy="72" rx="9" ry="6" fill="#b87a45"/><circle cx="56.5" cy="72" r="1.5" fill="#2b1a10"/><circle cx="63.5" cy="72" r="1.5" fill="#2b1a10"/>
+      <path d="M46 82Q60 94 74 82" fill="none" stroke="#2b1a10" stroke-width="3" stroke-linecap="round"/>
+      <circle cx="38" cy="74" r="5" fill="#ff8aa1" opacity=".55"/><circle cx="82" cy="74" r="5" fill="#ff8aa1" opacity=".55"/>
+    </symbol>
+    <symbol id="banana" viewBox="0 0 100 100">
+      <path d="M14 24C14 62 48 90 90 78C94 77 94 71 90 70C56 72 36 50 30 22C28 16 14 16 14 24Z" fill="#ffd23f" stroke="#2b1a10" stroke-width="4" stroke-linejoin="round"/>
+      <rect x="12" y="8" width="14" height="14" rx="3" fill="#8a5528" stroke="#2b1a10" stroke-width="3" transform="rotate(-8 19 15)"/>
+      <path d="M24 34C30 58 52 74 80 74" fill="none" stroke="#fff3a6" stroke-width="3" stroke-linecap="round"/>
+    </symbol>
+    <symbol id="mono-guitarra" viewBox="0 0 200 200">
+      <path d="M138 172C176 178 192 142 172 122C162 112 166 102 178 100" fill="none" stroke="#2b1a10" stroke-width="15" stroke-linecap="round"/>
+      <path d="M138 172C176 178 192 142 172 122C162 112 166 102 178 100" fill="none" stroke="#8a5528" stroke-width="9" stroke-linecap="round"/>
+      <ellipse cx="100" cy="150" rx="38" ry="36" fill="#8a5528" stroke="#2b1a10" stroke-width="3"/>
+      <ellipse cx="100" cy="156" rx="22" ry="24" fill="#f4c892"/>
+      <use href="#mono-cara" x="45" y="12" width="110" height="110"/>
+      <path d="M64 126L72 100M136 126L112 158" stroke="#2b1a10" stroke-width="16" stroke-linecap="round"/>
+      <path d="M64 126L72 100M136 126L112 158" stroke="#8a5528" stroke-width="10" stroke-linecap="round"/>
+      <g transform="rotate(-30 100 150)">
+        <rect x="95" y="46" width="10" height="84" rx="2" fill="#6b3d1b" stroke="#2b1a10" stroke-width="2.5"/>
+        <rect x="91" y="30" width="18" height="20" rx="3" fill="#2b1a10"/>
+        <ellipse cx="100" cy="142" rx="21" ry="17" fill="#ff7a2f" stroke="#2b1a10" stroke-width="3"/>
+        <ellipse cx="100" cy="168" rx="27" ry="22" fill="#ff7a2f" stroke="#2b1a10" stroke-width="3"/>
+        <ellipse cx="100" cy="142" rx="21" ry="17" fill="#ff7a2f"/>
+        <circle cx="100" cy="158" r="8" fill="#2b1a10"/><rect x="89" y="176" width="22" height="4" rx="2" fill="#2b1a10"/>
+      </g>
+      <circle cx="72" cy="99" r="9" fill="#f4c892" stroke="#2b1a10" stroke-width="2.5"/>
+      <circle cx="112" cy="158" r="9" fill="#f4c892" stroke="#2b1a10" stroke-width="2.5"/>
+    </symbol>
+    <symbol id="mono-banana" viewBox="0 0 170 150">
+      <use href="#mono-cara" x="22" y="0" width="120" height="120"/>
+      <use href="#banana" x="86" y="66" width="80" height="80"/>
+    </symbol>
+  </defs>
+</svg>
+
+<!-- Barra de arriba: el logo y los links a cada sección -->
+<nav>
+  <div class="wrap">
+    <strong class="logo"><svg class="sticker" aria-hidden="true"><use href="#mono-cara"/></svg>MonGui</strong>
+    <ul>
+      <li><a href="#inicio">Primeros pasos</a></li>
+      <li><a href="#acordes">Acordes</a></li>
+      <li><a href="#rasgueos">Rasgueos</a></li>
+      <li><a href="#generos">Géneros</a></li>
+      <li><a href="#crear">Crear música</a></li>
+      <li><a href="#repertorio">Repertorio</a></li>
+      <li><a href="#sonidos">Mis sonidos</a></li>
+      <li><a href="#afinador">Afinador</a></li>
+      <li><a href="#instrumentos">Otros instrumentos</a></li>
+      <li><a href="#canciones">Canciones</a></li>
+      <li><a href="#practica">Práctica</a></li>
+      <li><a href="#creador">Creador</a></li>
+    </ul>
+  </div>
+</nav>
+
+<!-- Portada: eslogan, monito (¡es un botón que suena!) y las 6 cuerdas tocables -->
+<header class="hero" id="inicio">
+  <div class="wrap">
+    <button type="button" class="mono-hero" aria-label="Toca al mono guitarrista para escuchar un acorde">
+      <svg class="sticker" viewBox="0 0 200 200" aria-hidden="true"><use href="#mono-guitarra"/></svg><span class="bocadillo">¡Tócame!</span>
+    </button>
+    <svg class="banana b1 sticker" viewBox="0 0 100 100" aria-hidden="true"><use href="#banana"/></svg>
+    <svg class="banana b2 sticker" viewBox="0 0 100 100" aria-hidden="true"><use href="#banana"/></svg>
+    <p class="eslogan">Trouncando ando</p>
+    <h1>Toca tu primera canción en guitarra</h1>
+    <p class="lead">Aprende las cuerdas, tus primeros acordes y los rasgueos más usados. Todo se puede escuchar: toca las cuerdas de abajo para empezar.</p>
+    <div class="cuerdas" id="cuerdas" role="group" aria-label="Cuerdas al aire de la guitarra"></div>
+    <p class="hint">De la cuerda más gruesa a la más delgada: Mi, La, Re, Sol, Si, Mi. Truco para recordarlo: <em>"Mi Lindo Rancho Siempre Será Mío"</em>.</p>
+  </div>
+</header>
+
+<main>
+  <section class="bloque">
+    <div class="wrap">
+      <h2>Antes de tocar</h2>
+      <p class="intro">Tres cosas que hacen que aprender sea mucho más fácil desde el primer día.</p>
+      <div class="pasos">
+        <article class="tarjeta">
+          <h3>Afina primero</h3>
+          <p>Una guitarra desafinada suena mal aunque toques bien. Usa las cuerdas de arriba como referencia y una app de afinador en tu celular.</p>
+        </article>
+        <article class="tarjeta">
+          <h3>Postura cómoda</h3>
+          <p>Siéntate derecho, apoya la guitarra en la pierna y mantén el pulgar detrás del mástil. Los dedos van arriba de los trastes, cerca del metal.</p>
+        </article>
+        <article class="tarjeta">
+          <h3>Lee los diagramas</h3>
+          <p>Las líneas verticales son las cuerdas (la más gruesa a la izquierda). Los puntos muestran dónde pones el dedo y el número dice cuál usar: 1 índice, 2 medio, 3 anular, 4 meñique.</p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- ACORDES: los diagramas los dibuja el JS (renderAcordes), aquí solo está el contenedor -->
+  <section class="bloque" id="acordes">
+    <div class="wrap">
+      <h2>Acordes para empezar</h2>
+      <p class="intro">Haz clic en un acorde para escucharlo. Una <b>X</b> arriba significa que esa cuerda no se toca y un círculo vacío, que se toca al aire.</p>
+      <div class="controles"><span class="slotInst"></span></div>
+      <div class="acordes" id="listaAcordes"></div>
+
+      <div class="progresiones" id="progresiones"></div>
+    </div>
+  </section>
+
+  <!-- RASGUEOS: las tarjetas con flechas se generan desde el arreglo PATRONES del JS -->
+  <section class="bloque" id="rasgueos">
+    <div class="wrap">
+      <h2>Rasgueos</h2>
+      <p class="intro">El rasgueo es el ritmo de tu mano derecha. <b>↓</b> es golpe hacia abajo, <b>↑</b> hacia arriba y un punto significa que la mano pasa sin tocar las cuerdas. Mueve siempre la mano sin parar, aunque no toques.</p>
+      <div class="panel">
+        <div class="controles">
+          <label>Acorde
+            <select id="selAcorde"></select>
+          </label>
+          <span class="slotInst"></span>
+          <label>Velocidad: <span id="bpmVal">80</span> bpm
+            <input type="range" id="bpm" min="50" max="140" value="80">
+          </label>
+          <button class="accion sec" id="detener" type="button">Detener</button>
+        </div>
+        <div class="patrones" id="patrones"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- GÉNEROS: pestañas con progresiones y rasgueos (datos en GENEROS del JS) -->
+  <section class="bloque" id="generos">
+    <div class="wrap">
+      <h2>Géneros musicales</h2>
+      <p class="intro">Cada género tiene sus acordes y su compás: 4/4 (cuatro tiempos), 3/4 (vals), 6/8 (dos grupos de tres) y 2/4 (polka). Elige uno y toca su progresión con el rasgueo que le va.</p>
+      <div class="tabs" id="gTabs" role="tablist"></div>
+      <div class="panel" id="gPanel"></div>
+    </div>
+  </section>
+
+  <!-- CREAR MÚSICA: arma tu canción compás por compás y reprodúcela -->
+  <section class="bloque" id="crear">
+    <div class="wrap">
+      <h2>Crear música</h2>
+      <p class="intro">Arma tu canción compás por compás: elige el acorde y el rasgueo de cada uno, ajusta la velocidad y reprodúcela. Con "Toque humano" los golpes varían un poco, como cuando toca una persona.</p>
+      <div class="panel">
+        <div class="controles">
+          <span class="slotInst"></span>
+          <label>Velocidad: <span id="cBpmVal">90</span> bpm <input type="range" id="cBpm" min="50" max="160" value="90"></label>
+          <label class="check"><input type="checkbox" id="cLoop" checked> Repetir</label>
+          <label class="check"><input type="checkbox" id="cHumano" checked> Toque humano</label>
+          <button type="button" class="accion" id="cPlay">Reproducir</button>
+        </div>
+        <div class="patrones" id="cBars"></div>
+        <div class="controles" style="margin:16px 0 0">
+          <button type="button" class="accion sec" id="cAdd">Añadir compás</button>
+          <button type="button" class="accion sec" id="cClear">Vaciar</button>
+          <button type="button" class="accion sec" id="cPublicar">Guardar en mi repertorio</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- REPERTORIO: arriba tus canciones grabadas (audio), abajo tus arreglos de acordes -->
+  <section class="bloque" id="repertorio">
+    <div class="wrap">
+      <h2>Repertorio</h2>
+      <p class="intro">Canciones tocadas y grabadas por Rodri Santini, y tus propios arreglos de acordes.</p>
+      <div class="panel">
+        <h3 style="font-size:1.25rem; margin-bottom:12px">Subir una canción grabada</h3>
+        <form id="scForm" class="controles" style="margin-bottom:0">
+          <label>Canción <input type="text" id="scTitulo" maxlength="60" required></label>
+          <label>Artista <input type="text" id="scArtista" maxlength="60" required></label>
+          <label>Instrumento <select id="scInst"></select></label>
+          <label>Audio <input type="file" id="scArchivo" accept="audio/*" required></label>
+          <button type="submit" class="accion" id="scBtn">Subir canción</button>
+        </form>
+        <p class="msg" id="scMsg" role="status" aria-live="polite">Se guarda en este navegador. Para que todos la escuchen, pulsa "Descargar para publicar" y sube los archivos a la carpeta canciones de tu GitHub.</p>
+        <button type="button" class="accion sec" id="scPub">Descargar para publicar</button>
+      </div>
+      <div class="controles" style="margin:24px 0 12px">
+        <label>Buscar <input type="text" id="scBusca" placeholder="Canción o artista"></label>
+        <label>Instrumento <select id="scFiltro"><option value="">Todos</option></select></label>
+      </div>
+      <p class="msg" id="scInfo" role="status" aria-live="polite"></p>
+      <div class="inst" id="scLista"></div>
+      <h3 style="font-size:1.6rem; margin:44px 0 8px">Mis arreglos de acordes</h3>
+      <p class="intro">Guarda las canciones que armes en "Crear música": sus acordes y su rasgueo. Quedan en este dispositivo. Solo se guardan acordes y rasgueos, no letras.</p>
+      <div class="panel">
+        <h3 style="font-size:1.25rem; margin-bottom:12px">Guarda tus acordes y rasgueos</h3>
+        <form id="pubForm" class="controles" style="margin-bottom:0">
+          <label>Canción <input type="text" id="pTitulo" maxlength="60" required></label>
+          <label>Artista <input type="text" id="pArtista" maxlength="60" required></label>
+          <label>Tu nombre (opcional) <input type="text" id="pAutor" maxlength="30"></label>
+          <label>Género <select id="pGenero"></select></label>
+          <button type="submit" class="accion" id="pBtn">Guardar</button>
+        </form>
+        <p class="msg" id="pMsg" role="status" aria-live="polite">Se guarda lo que tienes ahora en "Crear música".</p>
+      </div>
+      <div class="controles" style="margin:24px 0 12px">
+        <label>Buscar <input type="text" id="rBusca" placeholder="Canción o artista"></label>
+        <label>Género <select id="rGenero"><option value="">Todos</option></select></label>
+      </div>
+      <p class="msg" id="rMsg" role="status" aria-live="polite"></p>
+      <div class="inst" id="rLista"></div>
+    </div>
+  </section>
+
+  <!-- MIS SONIDOS: aquí subes tus grabaciones de cada acorde para reemplazar el sintetizado -->
+  <section class="bloque" id="sonidos">
+    <div class="wrap">
+      <h2>Mis sonidos</h2>
+      <p class="intro">Sube grabaciones reales de cada instrumento para que las canciones suenen con tu sonido y no con el sintetizado. Cada acorde es un archivo de audio con el rasgueo completo.</p>
+      <div class="inst">
+        <article class="tarjeta"><h3>1. Para probar</h3><p>Sube aquí tus audios. Se guardan solo en este navegador y sirven para escucharlos al instante en toda la página. Nadie más los ve.</p></article>
+        <article class="tarjeta"><h3>2. Para que todos los oigan</h3><p>Pulsa "Descargar todos con nombre correcto" y luego "Descargar lista.json". Pon los audios en la carpeta <b>sonidos</b> de tu repositorio (junto a <b>index.html</b>), con <b>lista.json</b> dentro, y súbelo todo a GitHub. Desde ese momento todos escuchan tus grabaciones.</p></article>
+      </div>
+      <div class="panel" style="margin-top:20px">
+        <div class="controles">
+          <label>Instrumento a grabar <select id="sInst"></select></label>
+          <button type="button" class="accion sec" id="sDescTodo">Descargar todos con nombre correcto</button>
+          <button type="button" class="accion sec" id="sLista">Descargar lista.json</button>
+          <button type="button" class="accion sec" id="sBorrar">Borrar mis audios de este navegador</button>
+        </div>
+        <p class="msg" id="sMsg" role="status" aria-live="polite"></p>
+        <h3 style="font-size:1.2rem">Acordes</h3>
+        <div class="slotsnd" id="sGrid"></div>
+        <h3 style="font-size:1.2rem">Grabaciones de rasgueos</h3>
+        <p class="msg" style="margin-top:4px">Un audio de ejemplo de cada tipo de rasgueo, tocado con el instrumento elegido arriba. Aparece como "Escuchar grabación" en la sección Rasgueos cuando eliges ese instrumento en "Sonido".</p>
+        <div class="slotsnd" id="rGrid"></div>
+      </div>
+      <details class="tarjeta" style="margin-top:20px">
+        <summary>¿Dónde guardo los archivos y cómo se llaman?</summary>
+<pre>sonidos/
+├── lista.json         lo genera el botón "Descargar lista.json"
+├── ukulele-soprano/
+│   ├── C.mp3          rasgueo hacia ABAJO del acorde C
+│   ├── C-arriba.mp3   rasgueo hacia ARRIBA (opcional)
+│   ├── Am.mp3
+│   ├── apagado.mp3    golpe apagado con la palma (opcional)
+│   └── rasgueos/
+│       ├── el-mas-usado.mp3
+│       └── vals.mp3 ...
+├── ukulele-concierto/     (misma estructura)
+├── guitarra-clasica/      (misma estructura)
+├── guitarra-acustica/     (misma estructura)
+├── guitarra-electrica/    (también E5, A5 y D5)
+└── flauta/                (misma estructura)</pre>
+        <p style="margin:12px 0 0">Formatos: mp3, wav o m4a. Un solo rasgueo por archivo, de 1 a 3 segundos, recortado para que el golpe empiece al inicio. Mantén un volumen parecido entre todos. Si falta un archivo, la página usa el sonido sintetizado para ese acorde.</p>
+      </details>
+    </div>
+  </section>
+
+  <!-- AFINADOR: usa el micrófono (solo funciona con https o localhost) -->
+  <section class="bloque" id="afinador">
+    <div class="wrap">
+      <h2>Afinador</h2>
+      <p class="intro">Elige tu instrumento, activa el micrófono y toca una cuerda al aire, sin ruido alrededor. También puedes escuchar el tono correcto de cada cuerda.</p>
+      <div class="panel">
+        <div class="controles">
+          <label>Instrumento <select id="selInstr"></select></label>
+          <button type="button" class="accion" id="btnMic">Activar micrófono</button>
+        </div>
+        <div style="display:flex; gap:24px; align-items:end; flex-wrap:wrap">
+          <div class="nota-grande" id="afNota">--</div>
+          <div><b id="afHz">0 Hz</b><div id="afMsg" class="msg" style="margin:0" role="status" aria-live="polite">Esperando sonido…</div></div>
+        </div>
+        <div class="medidor" aria-hidden="true"><div class="aguja" id="aguja"></div></div>
+        <div class="af-cuerdas" id="afCuerdas"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- OTROS INSTRUMENTOS: tarjetas informativas (ukulele, eléctrica, bajo...) -->
+  <section class="bloque" id="instrumentos">
+    <div class="wrap">
+      <h2>Otros instrumentos</h2>
+      <p class="intro">Lo que aprendiste en la guitarra te sirve en otros instrumentos. Esto es lo básico de cada uno.</p>
+      <div class="inst">
+        <article class="tarjeta">
+          <h3>Ukulele</h3>
+          <p>Cuatro cuerdas, de la 4 a la 1: Sol, Do, Mi, La. La cuerda Sol es aguda, no grave. Es suave para los dedos y se aprende rápido. Escucha sus primeros acordes:</p>
+          <div class="cadena" id="ukeChips" style="display:flex; gap:6px; flex-wrap:wrap; margin-top:12px"></div>
+        </article>
+        <article class="tarjeta">
+          <h3>Guitarra eléctrica</h3>
+          <p>Necesita un amplificador y un cable. Empieza con sonido limpio y luego prueba la distorsión. Los "power chords" usan solo dos o tres cuerdas y son la base del rock:</p>
+          <div style="display:flex; gap:6px; flex-wrap:wrap; margin-top:12px">
+            <button type="button" class="accion sec" data-ac="E5">E5</button>
+            <button type="button" class="accion sec" data-ac="A5">A5</button>
+            <button type="button" class="accion sec" data-ac="D5">D5</button>
+          </div>
+        </article>
+        <article class="tarjeta">
+          <h3>Bajo eléctrico</h3>
+          <p>Sus cuatro cuerdas suenan como las cuatro más graves de la guitarra, una octava abajo: Mi, La, Re, Sol. Marca el ritmo y la nota base de cada acorde.</p>
+        </article>
+        <article class="tarjeta">
+          <h3>Bajo sexto y requinto</h3>
+          <p>Muy usados en la música regional mexicana. El bajo sexto tiene seis cuerdas afinadas en cuartas (Mi, La, Re, Sol, Do, Fa) y da el sonido grave. El requinto es una guitarra pequeña y aguda que toca las melodías. Ambos aparecen en el afinador.</p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- BUSCADOR DE CANCIONES: letras con lyrics.ovh + acordes que tú le pones a la letra -->
+  <section class="bloque" id="canciones">
+    <div class="wrap">
+      <h2>Busca una canción</h2>
+      <p class="intro">Escribe el nombre de la canción. Verás la letra aquí mismo y enlaces para abrir los acordes en sitios especializados.</p>
+      <div class="panel">
+        <form id="formBusca" class="controles" style="margin-bottom:0">
+          <label style="flex:1; min-width:220px">Nombre de la canción (y artista, si quieres)
+            <input type="text" id="q" placeholder="Ej. Wonderwall Oasis" autocomplete="off" required>
+          </label>
+          <button class="accion" type="submit" id="btnBusca">Buscar</button>
+        </form>
+        <p class="msg" id="msgBusca" role="status" aria-live="polite"></p>
+        <div class="resultados" id="resultados"></div>
+        <div class="cancion" id="cancion" hidden>
+          <div>
+            <h3 id="cTitulo"></h3>
+            <div id="cArtista" style="color:var(--gris)"></div>
+            <div id="paleta" hidden>
+              <p class="msg" style="margin:10px 0 6px">Ponle acordes a la letra: elige un acorde y haz clic en la palabra donde cambia.</p>
+              <div class="af-cuerdas" id="paletaChips" style="margin:0 0 10px"></div>
+            </div>
+            <pre class="letra" id="cLetra" tabindex="0"></pre>
+            <div class="controles" id="paletaAcc" style="margin:12px 0 0" hidden>
+              <button type="button" class="accion" id="btnLlevar">Tocar en Crear música</button>
+              <button type="button" class="accion sec" id="btnQuitar">Quitar acordes</button>
+            </div>
+          </div>
+          <div>
+            <h3 style="font-size:1.15rem; margin-bottom:10px">Ver acordes</h3>
+            <div class="enlaces" id="cEnlaces"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PLAN DE PRÁCTICA: texto fijo, aquí puedes editar lo que quieras -->
+  <section class="bloque" id="practica">
+    <div class="wrap">
+      <h2>Plan de práctica: 4 semanas</h2>
+      <p class="intro">Quince minutos al día valen más que dos horas el domingo. Tus dedos necesitan repetición, no esfuerzo.</p>
+      <div class="semanas">
+        <article class="semana"><h3>Semana 1</h3><p>Em y Am. Cámbialos despacio, 10 veces seguidas, con rasgueo de abajo constante.</p></article>
+        <article class="semana"><h3>Semana 2</h3><p>Agrega C, G y D. Practica la progresión G – D – Em – C.</p></article>
+        <article class="semana"><h3>Semana 3</h3><p>Aprende el rasgueo "El más usado" y súbele la velocidad poco a poco.</p></article>
+        <article class="semana"><h3>Semana 4</h3><p>Busca una canción sencilla con los acordes que ya sabes y tócala completa.</p></article>
+      </div>
+      <ul class="errores">
+        <li><b>Apretar demasiado:</b> presiona solo lo necesario para que la cuerda no zumbe.</li>
+        <li><b>Mirar al vacío entre acordes:</b> practica el cambio sin tocar, solo moviendo los dedos.</li>
+        <li><b>Ir muy rápido:</b> si te equivocas, baja la velocidad. La velocidad llega sola.</li>
+        <li><b>Dejar las uñas largas:</b> en la mano izquierda estorban para presionar bien.</li>
+      </ul>
+    </div>
+  </section>
+  <!-- CREADOR: tus redes. Cambia los links si cambias de usuario -->
+  <section class="bloque" id="creador">
+    <div class="wrap">
+      <div class="creador">
+        <svg class="sticker mono-creador" viewBox="0 0 170 150" aria-hidden="true"><use href="#mono-banana"/></svg>
+        <div>
+          <h3>Rodri Santini</h3>
+          <p>Creador de esta guía. Sígueme para ver más música y guitarra.</p>
+        </div>
+        <div class="redes">
+          <a href="https://www.instagram.com/ronits.ss" target="_blank" rel="noopener">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 7a5 5 0 1 0 0 10 5 5 0 0 0 0-10zm0 8.2a3.2 3.2 0 1 1 0-6.4 3.2 3.2 0 0 1 0 6.4zM17.3 5.6a1.2 1.2 0 1 0 0 2.4 1.2 1.2 0 0 0 0-2.4zM7.5 2h9A5.5 5.5 0 0 1 22 7.5v9a5.5 5.5 0 0 1-5.5 5.5h-9A5.5 5.5 0 0 1 2 16.5v-9A5.5 5.5 0 0 1 7.5 2zm0 1.8A3.7 3.7 0 0 0 3.8 7.5v9a3.7 3.7 0 0 0 3.7 3.7h9a3.7 3.7 0 0 0 3.7-3.7v-9a3.7 3.7 0 0 0-3.7-3.7z"/></svg>
+            Instagram @ronits.ss</a>
+          <a href="https://www.tiktok.com/@ronits.ss" target="_blank" rel="noopener">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M16.6 2h-3.2v13.2a2.9 2.9 0 1 1-2.9-2.9c.3 0 .6 0 .8.1V9a6.1 6.1 0 1 0 5.3 6V8.6a7.6 7.6 0 0 0 4.4 1.4V6.8a4.4 4.4 0 0 1-4.4-4.8z"/></svg>
+            TikTok @ronits.ss</a>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<!-- Pie de página con los stickers y los créditos -->
+<footer>
+  <div class="wrap">
+    <div class="stickers-pie" aria-hidden="true"><svg class="sticker" viewBox="0 0 120 120"><use href="#mono-cara"/></svg><svg class="sticker" viewBox="0 0 100 100"><use href="#banana"/></svg><svg class="sticker" viewBox="0 0 200 200"><use href="#mono-guitarra"/></svg></div>
+    <p style="margin:0 0 6px">Hecho como guía para principiantes. Las letras provienen de <a href="https://lyricsovh.docs.apiary.io/" target="_blank" rel="noopener">lyrics.ovh</a> y pertenecen a sus autores; los acordes se abren en sitios externos.</p>
+    <p style="margin:0">Proyecto escolar de Rodri Santini (@ronits.ss).</p>
+  </div>
+</footer>
+
+<script>
+/* ============ AUDIO ============ */
+/* Aquí se prepara todo el sonido de la página. Ojo: los navegadores no dejan
+   sonar nada hasta que la persona hace clic, por eso el AudioContext se crea
+   "a la primera" que lo necesitamos (función audio()). */
+let ctx = null;
+// Crea (una sola vez) el motor de audio del navegador y lo "despierta" si estaba dormido.
+function audio() {
+  if (!ctx) ctx = new (window.AudioContext || window.webkitAudioContext)();
+  if (ctx.state === "suspended") ctx.resume();
+  return ctx;
+}
+const hz = (midi) => 440 * Math.pow(2, (midi - 69) / 12);
+
+const ksCache = {};
+let salida = null;
+// La "salida" común de todos los sonidos: un poquito de cuerpo, un recorte de agudos
+// y un compresor para que no suene saturado cuando tocan muchas cuerdas a la vez.
+function bus() {
+  if (salida) return salida;
+  const a = audio();
+  const g = a.createGain(); g.gain.value = 0.9;
+  const cuerpo = a.createBiquadFilter(); cuerpo.type = "peaking"; cuerpo.frequency.value = 210; cuerpo.gain.value = 5; cuerpo.Q.value = 0.9;
+  const brillo = a.createBiquadFilter(); brillo.type = "lowpass"; brillo.frequency.value = 6500;
+  const comp = a.createDynamicsCompressor(); comp.threshold.value = -18; comp.ratio.value = 3;
+  g.connect(cuerpo); cuerpo.connect(brillo); brillo.connect(comp); comp.connect(a.destination);
+  return (salida = g);
+}
+/* Cuerda pulsada simulada (Karplus-Strong): suena mucho más a guitarra que un oscilador */
+// Fabrica el sonido de UNA cuerda pulsada con el algoritmo Karplus-Strong:
+// se llena un buffer de ruido y se va "apagando" promediando valores vecinos.
+// Se guarda en caché para no recalcularlo cada vez.
+function bufferCuerda(N, v) {
+  const k = N + "_" + v;
+  if (ksCache[k]) return ksCache[k];
+  const a = audio(), sr = a.sampleRate, n = Math.floor(sr * 2.6);
+  const buf = a.createBuffer(1, n, sr), d = buf.getChannelData(0), r = new Float32Array(N);
+  let p = 0;
+  for (let i = 0; i < N; i++) { p = p * 0.45 + (Math.random() * 2 - 1) * 0.55; r[i] = p; }
+  const f0 = sr / (N + 0.5), T = Math.max(1.3, Math.min(2.8, 2.8 - f0 / 600));
+  const decay = Math.pow(0.1, 1 / (f0 * T));
+  let idx = 0;
+  for (let i = 0; i < n; i++) {
+    const x = r[idx], y = r[(idx + 1) % N];
+    d[i] = x; r[idx] = (x + y) * 0.5 * decay; idx = (idx + 1) % N;
+  }
+  return (ksCache[k] = buf);
+}
+// Toca una cuerda sintetizada: freq en Hz, when = cuándo (segundos del reloj de audio),
+// vol = volumen, dur = cuánto dura antes de apagarse.
+function pluck(freq, when, vol = 0.22, dur = 1.8) {
+  const a = audio();
+  const N = Math.max(2, Math.round(a.sampleRate / freq - 0.5));
+  const src = a.createBufferSource(), g = a.createGain();
+  src.buffer = bufferCuerda(N, Math.floor(Math.random() * 2));
+  src.playbackRate.value = freq / (a.sampleRate / (N + 0.5));
+  g.gain.setValueAtTime(vol * 2.4, when);
+  g.gain.setTargetAtTime(0.0001, when + dur, dur < 0.2 ? 0.012 : 0.12);
+  src.connect(g); g.connect(bus());
+  src.start(when); src.stop(when + dur + 0.9);
+}
+
+/* ============ CUERDAS AL AIRE ============ */
+/* Las 6 cuerdas de la portada. Los números son notas MIDI (40 = Mi grave).
+   Si quieres otra afinación, cambia esos números. */
+const ABIERTAS = [40, 45, 50, 55, 59, 64];         // Mi La Re Sol Si Mi
+const NOMBRES_CUERDAS = ["Mi", "La", "Re", "Sol", "Si", "Mi"];
+const GROSOR = [6, 5, 4, 3, 2.2, 1.6];
+
+const cuerdasEl = document.getElementById("cuerdas");
+NOMBRES_CUERDAS.forEach((n, i) => {
+  const b = document.createElement("button");
+  b.type = "button"; b.className = "cuerda";
+  b.setAttribute("aria-label", `Cuerda ${6 - i}, ${n}`);
+  b.innerHTML = `<span class="nota">${n}</span><span class="hilo" style="--g:${GROSOR[i]}px"></span>`;
+  b.addEventListener("click", () => {
+    pluck(hz(ABIERTAS[i]), audio().currentTime, 0.3, 2.4);
+    b.classList.remove("vibra"); void b.offsetWidth; b.classList.add("vibra");
+  });
+  cuerdasEl.appendChild(b);
+});
+
+/* ============ ACORDES ============ */
+/* Los acordes de GUITARRA. Cada acorde tiene:
+     frets: el traste de cada cuerda (de la 6 a la 1) -> -1 = no se toca, 0 = al aire
+     dedos: qué dedo va en cada cuerda (0 = ninguno)
+     tipo : el nombre en español (si dice "cejilla", dibuja la barra)
+   ¿Quieres agregar un acorde? Copia una línea, cámbiale el nombre y los números. */
+/* frets: de la cuerda 6 (Mi grave) a la 1 (Mi agudo). -1 = no se toca, 0 = al aire */
+const ACORDES = {
+  "C":  { frets: [-1,3,2,0,1,0], dedos: [0,3,2,0,1,0], tipo: "Do mayor" },
+  "D":  { frets: [-1,-1,0,2,3,2], dedos: [0,0,0,1,3,2], tipo: "Re mayor" },
+  "E":  { frets: [0,2,2,1,0,0], dedos: [0,2,3,1,0,0], tipo: "Mi mayor" },
+  "G":  { frets: [3,2,0,0,0,3], dedos: [2,1,0,0,0,3], tipo: "Sol mayor" },
+  "A":  { frets: [-1,0,2,2,2,0], dedos: [0,0,1,2,3,0], tipo: "La mayor" },
+  "Am": { frets: [-1,0,2,2,1,0], dedos: [0,0,2,3,1,0], tipo: "La menor" },
+  "Em": { frets: [0,2,2,0,0,0], dedos: [0,2,3,0,0,0], tipo: "Mi menor" },
+  "Dm": { frets: [-1,-1,0,2,3,1], dedos: [0,0,0,2,3,1], tipo: "Re menor" },
+  "F":  { frets: [1,3,3,2,1,1], dedos: [1,3,4,2,1,1], tipo: "Fa mayor (cejilla)" },
+  "Bm": { frets: [-1,2,4,4,3,2], dedos: [0,1,3,4,2,1], tipo: "Si menor (cejilla)" },
+  "G7": { frets: [3,2,0,0,0,1], dedos: [3,2,0,0,0,1], tipo: "Sol séptima" },
+  "C7": { frets: [-1,3,2,3,1,0], dedos: [0,3,2,4,1,0], tipo: "Do séptima" },
+  "B7": { frets: [-1,2,1,2,0,2], dedos: [0,2,1,3,0,4], tipo: "Si séptima" },
+  "E5": { frets: [0,2,2,-1,-1,-1], dedos: [0,1,2,0,0,0], tipo: "Power chord" },
+  "A5": { frets: [-1,0,2,2,-1,-1], dedos: [0,0,1,2,0,0], tipo: "Power chord" },
+  "D5": { frets: [-1,-1,0,2,3,-1], dedos: [0,0,0,1,2,0], tipo: "Power chord" }
+};
+
+const COL_DEDO = ["#2b1a10", "#1e9b50", "#ff8a1f", "#e8478b", "#7a4bd6"]; // sin número, 1, 2, 3, 4
+// Dibuja en SVG el diagrama de un acorde (guitarra de 6 cuerdas o ukulele de 4).
+// Los puntos van de colores según el dedo, y si el tipo dice "cejilla" dibuja la barra.
+function diagrama(c) {
+  const W = 120, H = 156, x0 = 22, x1 = 98, y0 = 34, fh = 22, filas = 5, n = c.frets.length, dx = (x1 - x0) / (n - 1);
+  let s = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-hidden="true">`;
+  s += `<rect x="${x0 - 3}" y="${y0 - 5}" width="${x1 - x0 + 6}" height="7" rx="2" fill="#2b1a10"/>`;
+  for (let f = 1; f <= filas; f++) s += `<line x1="${x0}" x2="${x1}" y1="${y0 + f * fh}" y2="${y0 + f * fh}" stroke="#c7512f" stroke-width="1.6"/>`;
+  for (let i = 0; i < n; i++) s += `<line x1="${x0 + i * dx}" x2="${x0 + i * dx}" y1="${y0}" y2="${y0 + filas * fh}" stroke="#c7512f" stroke-width="${1.9 - i * 0.1}"/>`;
+  const traste1 = c.frets.filter((f) => f > 0), minF = Math.min(...traste1);
+  const idxMin = c.frets.map((f, i) => (f === minF ? i : -1)).filter((i) => i >= 0);
+  if (idxMin.length >= 2 && c.tipo.includes("cejilla")) {
+    const a = idxMin[0], b = idxMin[idxMin.length - 1], cy = y0 + (minF - 0.5) * fh;
+    s += `<rect x="${x0 + a * dx - 8}" y="${cy - 8}" width="${(b - a) * dx + 16}" height="16" rx="8" fill="${COL_DEDO[1]}" stroke="#2b1a10" stroke-width="2"/>`;
+  }
+  c.frets.forEach((f, i) => {
+    const x = x0 + i * dx;
+    if (f === -1) s += `<text x="${x}" y="${y0 - 11}" text-anchor="middle" font-size="14" font-weight="800" fill="#2b1a10">×</text>`;
+    else if (f === 0) s += `<circle cx="${x}" cy="${y0 - 14}" r="4.8" fill="#fff" stroke="#2b1a10" stroke-width="2"/>`;
+    else {
+      const cy = y0 + (f - 0.5) * fh;
+      s += `<circle cx="${x}" cy="${cy}" r="8.6" fill="${COL_DEDO[c.dedos[i] || 0]}" stroke="#2b1a10" stroke-width="2"/>`;
+      if (c.dedos[i]) s += `<text x="${x}" y="${cy + 4.2}" text-anchor="middle" font-size="12" font-weight="800" fill="#fff">${c.dedos[i]}</text>`;
+    }
+  });
+  return s + "</svg>";
+}
+
+// Toca un acorde completo. dir: "D" = rasgueo abajo, "U" = arriba.
+// Orden de prioridad: 1) tu grabación real  2) sintetizado (si está permitido).
+// Si el instrumento es la flauta, lo toca nota por nota (arpegio).
+function tocarAcorde(nombre, dir = "D", vol = 0.2, t0 = null, dur = 1.6) {
+  const m = muestraDe(nombre, dir);
+  if (m) return tocarMuestra(m.buf, t0 ?? audio().currentTime, vol * 4 * m.g, m.corto ? Math.min(dur, 0.7) : dur);
+  if (instActual && !sintOk()) return aviso(`Falta la grabación de ${nombre} en ${INSTS[instActual]}`);
+  if (familia() === "flauta") return tocarFlauta(nombre, dir, vol, t0 ?? audio().currentTime, dur);
+  const c = datosAcorde(nombre), AB = c.abiertas || ABIERTAS;
+  const t = t0 ?? audio().currentTime;
+  const orden = dir === "D" ? [...c.frets.keys()] : [...c.frets.keys()].reverse();
+  let k = 0;
+  orden.forEach((i) => {
+    if (c.frets[i] < 0) return;
+    if (dir === "U" && i < c.frets.length - 4) return;                 // el rasgueo hacia arriba toca solo las cuerdas agudas
+    pluck(hz(AB[i] + c.frets[i]), t + k * (dir === "U" ? 0.009 : 0.014) * (0.8 + Math.random() * 0.5), vol * (dir === "U" ? 0.75 : 1) * (0.88 + Math.random() * 0.24), dur);
+    k++;
+  });
+}
+
+/* Ukulele (GCEA): frets de la cuerda 4 (Sol) a la 1 (La) */
+// Los acordes de UKULELE (cuerdas Sol-Do-Mi-La). Mismo formato que los de guitarra
+// pero con 4 números. Soprano y concierto comparten digitación.
+const UKE_ACORDES = {
+  "C":  { frets: [0,0,0,3], dedos: [0,0,0,3], tipo: "Do mayor" },
+  "D":  { frets: [2,2,2,0], dedos: [1,2,3,0], tipo: "Re mayor" },
+  "E":  { frets: [1,4,0,2], dedos: [1,4,0,2], tipo: "Mi mayor" },
+  "G":  { frets: [0,2,3,2], dedos: [0,1,3,2], tipo: "Sol mayor" },
+  "A":  { frets: [2,1,0,0], dedos: [2,1,0,0], tipo: "La mayor" },
+  "Am": { frets: [2,0,0,0], dedos: [2,0,0,0], tipo: "La menor" },
+  "Em": { frets: [0,4,3,2], dedos: [0,3,2,1], tipo: "Mi menor" },
+  "Dm": { frets: [2,2,1,0], dedos: [2,3,1,0], tipo: "Re menor" },
+  "F":  { frets: [2,0,1,0], dedos: [2,0,1,0], tipo: "Fa mayor" },
+  "Bm": { frets: [4,2,2,2], dedos: [4,1,1,1], tipo: "Si menor (cejilla)" },
+  "G7": { frets: [0,2,1,2], dedos: [0,2,1,3], tipo: "Sol séptima" },
+  "C7": { frets: [0,0,0,1], dedos: [0,0,0,1], tipo: "Do séptima" },
+  "B7": { frets: [2,3,2,2], dedos: [1,3,1,1], tipo: "Si séptima (cejilla)" }
+};
+const ABIERTAS_UKE = [67, 60, 64, 69];
+Object.assign(ACORDES, {
+  "Bb":    { frets: [-1,1,3,3,3,1], dedos: [0,1,3,3,3,1], tipo: "Si bemol mayor (cejilla)" },
+  "B":     { frets: [-1,2,4,4,4,2], dedos: [0,1,3,3,3,1], tipo: "Si mayor (cejilla)" },
+  "F#m":   { frets: [2,4,4,2,2,2], dedos: [1,3,4,1,1,1], tipo: "Fa# menor (cejilla)" },
+  "Gm":    { frets: [3,5,5,3,3,3], dedos: [1,3,4,1,1,1], tipo: "Sol menor (cejilla)" },
+  "Cm":    { frets: [-1,3,5,5,4,3], dedos: [0,1,3,4,2,1], tipo: "Do menor (cejilla)" },
+  "Fm":    { frets: [1,3,3,1,1,1], dedos: [1,3,4,1,1,1], tipo: "Fa menor (cejilla)" },
+  "A7":    { frets: [-1,0,2,0,2,0], dedos: [0,0,2,0,3,0], tipo: "La séptima" },
+  "D7":    { frets: [-1,-1,0,2,1,2], dedos: [0,0,0,2,1,3], tipo: "Re séptima" },
+  "E7":    { frets: [0,2,0,1,0,0], dedos: [0,2,0,1,0,0], tipo: "Mi séptima" },
+  "Am7":   { frets: [-1,0,2,0,1,0], dedos: [0,0,2,0,1,0], tipo: "La menor séptima" },
+  "Em7":   { frets: [0,2,0,0,0,0], dedos: [0,2,0,0,0,0], tipo: "Mi menor séptima" },
+  "Dm7":   { frets: [-1,-1,0,2,1,1], dedos: [0,0,0,2,1,1], tipo: "Re menor séptima" },
+  "Cmaj7": { frets: [-1,3,2,0,0,0], dedos: [0,3,2,0,0,0], tipo: "Do mayor séptima" },
+  "Fmaj7": { frets: [-1,-1,3,2,1,0], dedos: [0,0,3,2,1,0], tipo: "Fa mayor séptima" },
+  "Gmaj7": { frets: [3,2,0,0,0,2], dedos: [3,2,0,0,0,1], tipo: "Sol mayor séptima" },
+  "Amaj7": { frets: [-1,0,2,1,2,0], dedos: [0,0,2,1,3,0], tipo: "La mayor séptima" },
+  "Dmaj7": { frets: [-1,-1,0,2,2,2], dedos: [0,0,0,1,2,3], tipo: "Re mayor séptima" },
+  "Asus2": { frets: [-1,0,2,2,0,0], dedos: [0,0,1,2,0,0], tipo: "La sus2" },
+  "Asus4": { frets: [-1,0,2,2,3,0], dedos: [0,0,1,2,3,0], tipo: "La sus4" },
+  "Dsus2": { frets: [-1,-1,0,2,3,0], dedos: [0,0,0,1,3,0], tipo: "Re sus2" },
+  "Dsus4": { frets: [-1,-1,0,2,3,3], dedos: [0,0,0,1,3,4], tipo: "Re sus4" },
+  "Esus4": { frets: [0,2,2,2,0,0], dedos: [0,2,3,4,0,0], tipo: "Mi sus4" },
+  "Cadd9": { frets: [-1,3,2,0,3,3], dedos: [0,2,1,0,3,4], tipo: "Do add9" }
+});
+Object.assign(UKE_ACORDES, {
+  "Bb":    { frets: [3,2,1,1], dedos: [3,2,1,1], tipo: "Si bemol mayor" },
+  "B":     { frets: [4,3,2,2], dedos: [4,3,1,1], tipo: "Si mayor" },
+  "F#m":   { frets: [2,1,2,0], dedos: [2,1,3,0], tipo: "Fa# menor" },
+  "Gm":    { frets: [0,2,3,1], dedos: [0,2,3,1], tipo: "Sol menor" },
+  "Cm":    { frets: [0,3,3,3], dedos: [0,1,1,1], tipo: "Do menor (cejilla)" },
+  "Fm":    { frets: [1,0,1,3], dedos: [1,0,2,4], tipo: "Fa menor" },
+  "A7":    { frets: [0,1,0,0], dedos: [0,1,0,0], tipo: "La séptima" },
+  "D7":    { frets: [2,2,2,3], dedos: [1,1,1,2], tipo: "Re séptima (cejilla)" },
+  "E7":    { frets: [1,2,0,2], dedos: [1,2,0,3], tipo: "Mi séptima" },
+  "Am7":   { frets: [0,0,0,0], dedos: [0,0,0,0], tipo: "La menor séptima" },
+  "Em7":   { frets: [0,2,0,2], dedos: [0,1,0,2], tipo: "Mi menor séptima" },
+  "Dm7":   { frets: [2,2,1,3], dedos: [2,3,1,4], tipo: "Re menor séptima" },
+  "Cmaj7": { frets: [0,0,0,2], dedos: [0,0,0,1], tipo: "Do mayor séptima" },
+  "Fmaj7": { frets: [2,4,1,3], dedos: [2,4,1,3], tipo: "Fa mayor séptima" },
+  "Gmaj7": { frets: [0,2,2,2], dedos: [0,1,2,3], tipo: "Sol mayor séptima" },
+  "Amaj7": { frets: [1,1,0,0], dedos: [1,1,0,0], tipo: "La mayor séptima (cejilla)" },
+  "Dmaj7": { frets: [2,2,2,4], dedos: [1,1,1,3], tipo: "Re mayor séptima (cejilla)" },
+  "Asus4": { frets: [2,2,0,0], dedos: [1,2,0,0], tipo: "La sus4" },
+  "Dsus4": { frets: [0,2,3,0], dedos: [0,1,2,0], tipo: "Re sus4" },
+  "Cadd9": { frets: [0,2,0,3], dedos: [0,1,0,3], tipo: "Do add9" }
+});
+Object.values(UKE_ACORDES).forEach((c) => (c.abiertas = ABIERTAS_UKE));
+
+const CATEGORIAS = {
+  "Mayores": ["C","D","E","F","G","A","B","Bb"],
+  "Menores": ["Am","Em","Dm","Bm","F#m","Gm","Cm","Fm"],
+  "Séptimas": ["C7","D7","E7","G7","A7","B7","Am7","Em7","Dm7","Cmaj7","Fmaj7","Gmaj7","Amaj7","Dmaj7"],
+  "Especiales": ["Asus2","Asus4","Dsus2","Dsus4","Esus4","Cadd9","E5","A5","D5"]
+};
+const REGIONAL = ["G","C","D","D7","A","A7","E","E7","B7","Am","Em","Dm","F","G7","C7","Bm"];
+let catActual = "Todos";
+const RAIZ_ES = { C: "Do", D: "Re", E: "Mi", F: "Fa", G: "Sol", A: "La", B: "Si" };
+// Convierte "F#m" en "Fa# menor" para mostrarlo en español junto al nombre en letra.
+function nombreEs(n) {
+  const m = n.match(/^([A-G])([#b]?)(.*)$/); if (!m) return n;
+  const suf = m[3] === "" ? "" : m[3] === "m" ? " menor" : " " + m[3];
+  return RAIZ_ES[m[1]] + m[2] + suf;
+}
+
+const familia = () => (instActual.startsWith("ukulele") ? "ukulele" : instActual === "flauta" ? "flauta" : "guitarra");
+const datosAcorde = (n) => (familia() === "ukulele" && UKE_ACORDES[n]) || ACORDES[n];
+
+/* Flauta: las notas del acorde, de la raíz hacia arriba (arpegio) */
+// La flauta toca una nota a la vez, así que sacamos las notas del acorde
+// (a partir de la guitarra) y las ordenamos de la raíz hacia arriba.
+function notasFlauta(n) {
+  const c = ACORDES[n], pcs = [];
+  c.frets.forEach((f, i) => { if (f >= 0) { const pc = (ABIERTAS[i] + f) % 12; if (!pcs.includes(pc)) pcs.push(pc); } });
+  const raiz = pcs[0];
+  pcs.sort((a, b) => ((a - raiz + 12) % 12) - ((b - raiz + 12) % 12));
+  let m = 60 + raiz; const out = [m];
+  pcs.slice(1).forEach((pc) => { do { m++; } while (m % 12 !== pc); out.push(m); });
+  return out;
+}
+// Sonido sintético de flauta: una onda suave + un poquito de vibrato.
+// Solo se usa si no hay grabaciones reales.
+function flauta(freq, when, vol = 0.2, dur = 0.9) {
+  const a = audio(), o = a.createOscillator(), o2 = a.createOscillator(), lfo = a.createOscillator();
+  const lg = a.createGain(), g = a.createGain(), g2 = a.createGain();
+  o.type = "sine"; o2.type = "sine"; o.frequency.value = freq; o2.frequency.value = freq * 2;
+  lfo.frequency.value = 5; lg.gain.value = freq * 0.002; lfo.connect(lg); lg.connect(o.frequency); lg.connect(o2.frequency);
+  g2.gain.value = 0.15; o.connect(g); o2.connect(g2); g2.connect(g);
+  g.gain.setValueAtTime(0.0001, when); g.gain.linearRampToValueAtTime(vol * 1.4, when + 0.07); g.gain.setTargetAtTime(0.0001, when + dur, 0.08);
+  g.connect(bus());
+  [o, o2, lfo].forEach((x) => { x.start(when); x.stop(when + dur + 0.6); });
+}
+function tocarFlauta(n, dir, vol, t, dur) {
+  let notas = notasFlauta(n);
+  if (dir === "U") notas = notas.slice().reverse();
+  notas.forEach((m, k) => flauta(hz(m + 12), t + k * 0.11, vol, Math.min(dur, 1.2)));
+}
+
+/* Digitaciones de flauta dulce, copiadas de la tabla del usuario.
+   Cada nota: [pulgar, agujeros 1 a 6, agujero 7 doble]. #: tapado, .: abierto, h: medio tapado. Índice 0 = Do, 12 = Do agudo. */
+// OJO: aquí está la tabla de la flauta dulce copiada de la imagen que mandó Rodri.
+const FLAUTA_DIG = [
+  ["#","######","#"], ["#","######","h"], ["#","######","."], ["#","#####h","."], ["#","#####.","."], ["#","####..","."],
+  ["#","###.##","#"], ["#","###...","."], ["#","##.##.","."], ["#","##....","."], ["#","#.#...","."], ["#","#.....","."],
+  ["#",".#....","."], [".","##....","."], [".",".#....","."], ["h","#####h","."], ["h","#####.","."], ["h","####..","."],
+  ["h","###.#.","."], ["h","###...","."], ["h","##.#..","."], ["h","##....","."], ["h","##.###","."], ["h","##.##.","."], ["h","#..#..","."]
+];
+// Dibuja la flauta dulce de frente con los 7 agujeros y el del pulgar.
+// Negro = tapado, blanco = abierto, mitad = medio tapado.
+function digitacionFlauta(m) {
+  const i = m - 60, d = FLAUTA_DIG[i]; if (!d) return "";
+  const hole = (st, x, y, r) => `<circle class="fh${st === "#" ? " c" : ""}" cx="${x}" cy="${y}" r="${r}"/>` + (st === "h" ? `<path class="fh c" d="M${x} ${y - r}A${r} ${r} 0 0 0 ${x} ${y + r}Z"/>` : "");
+  let s = `<svg viewBox="0 0 52 186" role="img" aria-label="Digitación de ${NOTAS[i % 12]}"><rect class="ftubo" x="15" y="18" width="20" height="140" rx="5"/><rect class="ftubo" x="17" y="4" width="16" height="16" rx="4"/><rect x="20" y="22" width="10" height="3" rx="1.5" fill="#2b1a10"/>`;
+  [0, 1, 2].forEach((k) => (s += hole(d[1][k], 25, 40 + k * 17, 5.4)));
+  s += `<line x1="13" x2="37" y1="85" y2="85" stroke="#2b1a10" stroke-dasharray="3 2"/>`;
+  [3, 4, 5].forEach((k) => (s += hole(d[1][k], 25, 96 + (k - 3) * 17, 5.4)));
+  s += hole(d[2], 22, 146, 5.4) + hole(d[0], 42, 57, 4.6);
+  s += `<text class="fn" x="26" y="172" text-anchor="middle">${NOTAS[i % 12]}</text>`;
+  if (i >= 12) s += `<text class="fn2" x="26" y="182" text-anchor="middle">${i >= 24 ? "sobre agudo" : "agudo"}</text>`;
+  return s + "</svg>";
+}
+
+/* Acordes que se muestran según el instrumento elegido */
+const leyendaDedos = '<span class="ld" style="--c:#1e9b50">1 índice</span><span class="ld" style="--c:#ff8a1f">2 medio</span><span class="ld" style="--c:#e8478b">3 anular</span><span class="ld" style="--c:#7a4bd6">4 meñique</span>';
+// Pinta la cuadrícula de acordes según el instrumento elegido y la pestaña
+// (Todos, Mayores, Menores...). Se vuelve a llamar cada vez que cambia el instrumento.
+function renderAcordes() {
+  const fam = familia(), L = document.getElementById("listaAcordes");
+  L.innerHTML = ""; L.classList.toggle("flauta", fam === "flauta");
+  const cats = ["Todos", ...Object.keys(CATEGORIAS), ...(fam === "guitarra" ? ["Regional"] : [])];
+  if (!cats.includes(catActual)) catActual = "Todos";
+  let tabs = document.getElementById("catTabs");
+  if (!tabs) { tabs = document.createElement("div"); tabs.id = "catTabs"; tabs.className = "tabs"; L.before(tabs); }
+  tabs.innerHTML = "";
+  cats.forEach((c) => {
+    const b = document.createElement("button");
+    b.type = "button"; b.className = "accion sec"; b.textContent = c; b.setAttribute("aria-selected", c === catActual);
+    b.addEventListener("click", () => { catActual = c; renderAcordes(); });
+    tabs.appendChild(b);
+  });
+  const todos = fam === "ukulele" ? Object.keys(UKE_ACORDES) : fam === "flauta" ? Object.keys(ACORDES).filter((n) => !/5$/.test(n)) : Object.keys(ACORDES);
+  const lista = catActual === "Todos" ? todos : todos.filter((n) => (catActual === "Regional" ? REGIONAL : CATEGORIAS[catActual]).includes(n));
+  lista.forEach((n) => {
+    const c = fam === "ukulele" ? UKE_ACORDES[n] : ACORDES[n];
+    const b = document.createElement("button");
+    b.type = "button"; b.className = "acorde";
+    b.setAttribute("aria-label", `Escuchar acorde ${nombreEs(n)}, ${c.tipo}`);
+    const cuerpo = fam === "flauta" ? `<div class="fl-row">${notasFlauta(n).map(digitacionFlauta).join("")}</div>` : diagrama(c);
+    b.innerHTML = `${cuerpo}<span class="nombre">${nombreEs(n)} / ${n}</span><span class="tipo">${c.tipo}</span>`;
+    b.addEventListener("click", () => { tocarAcorde(n); b.classList.add("suena"); setTimeout(() => b.classList.remove("suena"), 500); });
+    L.appendChild(b);
+  });
+  let nota = document.getElementById("acordesNota");
+  if (!nota) { nota = document.createElement("p"); nota.id = "acordesNota"; nota.className = "msg"; L.after(nota); }
+  nota.innerHTML = fam === "flauta"
+    ? "Flauta dulce: cada acorde se toca nota por nota, de izquierda a derecha (arpegio). Círculo negro = agujero tapado, blanco = abierto, mitad = medio tapado. El círculo de la derecha es el agujero del pulgar (por detrás) y la línea punteada separa la mano izquierda (arriba) de la derecha (abajo)."
+    : (fam === "ukulele" ? "Ukulele soprano y de concierto usan la misma afinación (Sol, Do, Mi, La) y los mismos acordes. En el diagrama, la cuerda de la izquierda es la 4 (Sol). " : "")
+      + (catActual === "Regional" ? "Acordes muy usados en corridos, rancheras y música norteña. " : "") + "Dedos: " + leyendaDedos;
+}
+
+/* ============ PROGRESIONES ============ */
+/* Las progresiones de la sección de acordes. Para agregar una, copia un bloque
+   de la lista y cambia el título y los acordes (que existan en ACORDES). */
+const PROGRESIONES = [
+  { t: "La más famosa del pop", d: "Cuatro acordes que suenan en cientos de canciones.", a: ["C", "G", "Am", "F"] },
+  { t: "Folk y rock sencillo", d: "Perfecta para empezar: solo acordes abiertos.", a: ["G", "D", "Em", "C"] },
+  { t: "Sonido melancólico", d: "Empieza en menor, ideal para baladas.", a: ["Am", "F", "C", "G"] },
+  { t: "Blues básico", d: "La base del blues con séptimas.", a: ["E", "A", "B7", "E"] },
+  { t: "Corrido (regional)", d: "Tres acordes con séptima: I – IV – V7.", a: ["G", "C", "D7", "G"] },
+  { t: "Ranchera (regional)", d: "El clásico de las rancheras.", a: ["C", "F", "G7", "C"] },
+  { t: "Norteño en La (regional)", d: "Con la séptima en el quinto grado.", a: ["A", "D", "E7", "A"] },
+  { t: "Vals ranchero (regional)", d: "Para tocar en 3/4.", a: ["Am", "Dm", "E7", "Am"] }
+];
+const progEl = document.getElementById("progresiones");
+let progTimers = [];
+PROGRESIONES.forEach((p) => {
+  const d = document.createElement("article");
+  d.className = "prog";
+  d.innerHTML = `<h3>${p.t}</h3><p>${p.d}</p>
+    <div class="cadena">${p.a.map((n) => `<span class="chip">${n}</span>`).join("")}</div>
+    <button type="button" class="accion sec">Escuchar</button>`;
+  const chips = d.querySelectorAll(".chip");
+  d.querySelector("button").addEventListener("click", () => {
+    progTimers.forEach(clearTimeout); progTimers = [];
+    document.querySelectorAll(".chip.on").forEach((c) => c.classList.remove("on"));
+    p.a.forEach((n, i) => {
+      progTimers.push(setTimeout(() => {
+        document.querySelectorAll(".chip.on").forEach((c) => c.classList.remove("on"));
+        chips[i].classList.add("on");
+        const t = audio().currentTime;
+        [0, 0.5, 1.0, 1.5].forEach((o, k) => tocarAcorde(n, k % 2 === 0 ? "D" : "U", 0.18, t + o));
+      }, i * 2000));
+    });
+    progTimers.push(setTimeout(() => chips.forEach((c) => c.classList.remove("on")), p.a.length * 2000));
+  });
+  progEl.appendChild(d);
+});
+
+/* ============ RASGUEOS ============ */
+/* Los patrones de rasgueo. En cada slot:  D = abajo, U = arriba, - = silencio,
+   X = golpe apagado, B = nota grave, 1/2/3 = una cuerda suelta (arpegio).
+   "sub" es cuántas subdivisiones hay por tiempo (2 normal, 3 para el 6/8). */
+const CUENTA = ["1", "y", "2", "y", "3", "y", "4", "y"];
+const PATRONES = [
+  { t: "Abajo constante", d: "El primero que debes dominar.", p: ["D","-","D","-","D","-","D","-"] },
+  { t: "Abajo y arriba", d: "Mano siempre en movimiento.", p: ["D","U","D","U","D","U","D","U"] },
+  { t: "El más usado", d: "Sirve para pop, folk y rock.", p: ["D","-","D","U","-","U","D","U"] },
+  { t: "Balada suave", d: "Más aire, ideal para canciones lentas.", p: ["D","-","-","U","D","U","-","U"] },
+  { t: "Reggae", d: "Solo golpes hacia arriba, cortos.", p: ["-","U","-","U","-","U","-","U"] },
+  { t: "Arpegio", d: "Cuerdas sueltas, una por una. B es la nota grave.", p: ["B","3","2","1","2","3","2","1"] },
+  { t: "Vals", d: "Un bajo y dos golpes de acorde.", m: "3/4", n: ["1","y","2","y","3","y"], p: ["B","-","D","-","D","-"] },
+  { t: "Vals con arriba", d: "Más movimiento en los tiempos 2 y 3.", m: "3/4", n: ["1","y","2","y","3","y"], p: ["B","-","D","U","D","U"] },
+  { t: "Balanceo", d: "Dos grupos de tres: 1-2-3 y 4-5-6.", m: "6/8", sub: 3, n: ["1","2","3","4","5","6"], p: ["D","-","U","D","-","U"] },
+  { t: "Arpegio 6/8", d: "Sube y baja por las cuerdas.", m: "6/8", sub: 3, n: ["1","2","3","4","5","6"], p: ["B","3","2","1","2","3"] },
+  { t: "Polka", d: "Bajo y acorde, como un vaivén.", m: "2/4", n: ["1","y","2","y"], p: ["B","-","D","U"] },
+  { t: "Con chasquido", d: "La × es un golpe apagado con la palma: suena como percusión.", p: ["D","-","X","U","-","U","X","U"] }
+];
+const selAcorde = document.getElementById("selAcorde");
+Object.keys(ACORDES).forEach((n) => {
+  const o = document.createElement("option"); o.value = n; o.textContent = `${n} (${ACORDES[n].tipo})`; selAcorde.appendChild(o);
+});
+selAcorde.value = "Am";
+
+const bpmEl = document.getElementById("bpm");
+const bpmVal = document.getElementById("bpmVal");
+bpmEl.addEventListener("input", () => { bpmVal.textContent = bpmEl.value; if (activo !== null) reiniciar(); });
+
+const patronesEl = document.getElementById("patrones");
+const tarjetas = PATRONES.map((pt, idx) => {
+  const d = document.createElement("div");
+  d.className = "patron";
+  d.innerHTML = `
+    <div><h3>${pt.t} <span style="font-weight:600;color:var(--azul)">${pt.m || "4/4"}</span></h3><small>${pt.d}</small>
+      <div class="patron-btns" style="margin-top:8px"><button type="button" class="accion">Tocar</button></div></div>
+    <div class="slots" style="grid-template-columns:repeat(${pt.p.length},1fr)">${pt.p.map((s, i) => `
+      <div class="slot"><span class="flecha ${s === "-" ? "vacio" : ""}">${{D:"↓",U:"↑","-":"·"}[s] || s}</span><span class="cuenta">${(pt.n || CUENTA)[i]}</span></div>`).join("")}
+    </div>`;
+  d.querySelector("button").addEventListener("click", () => { cadena = null; iniciar(idx); });
+  patronesEl.appendChild(d);
+  return d;
+});
+
+let activo = null, paso = 0, timer = null, cadena = null, compas = 0;
+// Arranca un rasgueo en bucle con un setInterval (un "tick" por cada casilla).
+function iniciar(idx) {
+  detener();
+  activo = idx; paso = 0; compas = 0; detenerComp();
+  tarjetas[idx].classList.add("activo");
+  audio();
+  const ms = 60000 / bpmEl.value / (PATRONES[idx].sub || 2);
+  tick();
+  timer = setInterval(tick, ms);
+}
+// Un paso del rasgueo: ilumina la casilla actual y toca lo que corresponda.
+function tick() {
+  const slots = tarjetas[activo].querySelectorAll(".slot");
+  slots.forEach((s) => s.classList.remove("on"));
+  slots[paso].classList.add("on");
+  const g = PATRONES[activo].p[paso];
+  const ch = cadena ? cadena[compas % cadena.length] : selAcorde.value;
+  tocarSlot(ch, g, paso % 2 === 0 ? 0.22 : 0.17);
+  const lv = document.getElementById("gLive"); if (lv && cadena) lv.textContent = "Acorde: " + ch;
+  paso = (paso + 1) % PATRONES[activo].p.length;
+  if (paso === 0) compas++;
+}
+function reiniciar() { const i = activo; iniciar(i); }
+function detener() {
+  clearInterval(timer); timer = null;
+  tarjetas.forEach((t) => { t.classList.remove("activo"); t.querySelectorAll(".slot.on").forEach((s) => s.classList.remove("on")); });
+  activo = null;
+}
+document.getElementById("detener").addEventListener("click", detener);
+
+/* ============ BUSCADOR DE CANCIONES ============ */
+/* Busca la canción en lyrics.ovh (gratis, a veces se cae). Los acordes NO vienen
+   de ahí: se abren en sitios externos con un enlace ya buscado. */
+const form = document.getElementById("formBusca");
+const qEl = document.getElementById("q");
+const msg = document.getElementById("msgBusca");
+const resEl = document.getElementById("resultados");
+const cancionEl = document.getElementById("cancion");
+
+function setMsg(t, error = false) { msg.textContent = t; msg.className = "msg" + (error ? " error" : ""); }
+
+function enlacesAcordes(texto) {
+  const q = encodeURIComponent(texto);
+  return [
+    { n: "Ultimate Guitar", d: "El mayor catálogo de acordes", u: `https://www.ultimate-guitar.com/search.php?search_type=title&value=${q}` },
+    { n: "Cifra Club", d: "Acordes en español y portugués", u: `https://www.cifraclub.com/?q=${q}` },
+    { n: "E-Chords", d: "Acordes con diagramas", u: `https://www.e-chords.com/search-all/${q}` },
+    { n: "Songsterr", d: "Tablaturas con reproductor", u: `https://www.songsterr.com/?pattern=${q}` }
+  ];
+}
+function pintarEnlaces(texto) {
+  document.getElementById("cEnlaces").innerHTML = enlacesAcordes(texto)
+    .map((e) => `<a href="${e.u}" target="_blank" rel="noopener">${e.n}<small>${e.d}</small></a>`).join("");
+}
+
+form.addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const texto = qEl.value.trim();
+  if (!texto) return;
+  resEl.innerHTML = ""; cancionEl.hidden = true;
+  document.getElementById("cLetra").classList.remove("con-acordes");
+  document.getElementById("paleta").hidden = true; document.getElementById("paletaAcc").hidden = true;
+  setMsg("Buscando…");
+  document.getElementById("btnBusca").disabled = true;
+  try {
+    const r = await fetch("https://api.lyrics.ovh/suggest/" + encodeURIComponent(texto));
+    if (!r.ok) throw new Error("http");
+    const j = await r.json();
+    const vistos = new Set();
+    const lista = (j.data || []).filter((x) => {
+      const k = (x.title + "|" + x.artist.name).toLowerCase();
+      if (vistos.has(k)) return false; vistos.add(k); return true;
+    }).slice(0, 8);
+    if (!lista.length) {
+      setMsg("No encontré resultados. Revisa el nombre o prueba agregando el artista. Mientras, puedes buscar los acordes directamente:", true);
+      cancionEl.hidden = false;
+      document.getElementById("cTitulo").textContent = texto;
+      document.getElementById("cArtista").textContent = "";
+      document.getElementById("cLetra").textContent = "Sin letra disponible.";
+      pintarEnlaces(texto);
+      return;
+    }
+    setMsg(`${lista.length} resultado(s). Elige tu canción:`);
+    lista.forEach((s) => {
+      const b = document.createElement("button");
+      b.type = "button"; b.className = "res";
+      b.innerHTML = `<img alt="" src="${s.album?.cover_small || ""}"><div><strong></strong><span></span></div>`;
+      b.querySelector("strong").textContent = s.title;
+      b.querySelector("span").textContent = s.artist.name;
+      b.addEventListener("click", () => {
+        document.querySelectorAll(".res.sel").forEach((x) => x.classList.remove("sel"));
+        b.classList.add("sel");
+        mostrarCancion(s.artist.name, s.title);
+      });
+      resEl.appendChild(b);
+    });
+  } catch (err) {
+    setMsg("No se pudo conectar con el servicio de letras. Puedes buscar los acordes directamente aquí:", true);
+    cancionEl.hidden = false;
+    document.getElementById("cTitulo").textContent = texto;
+    document.getElementById("cArtista").textContent = "";
+    document.getElementById("cLetra").textContent = "Letra no disponible por ahora.";
+    pintarEnlaces(texto);
+  } finally {
+    document.getElementById("btnBusca").disabled = false;
+  }
+});
+
+async function mostrarCancion(artista, titulo) {
+  cancionEl.hidden = false;
+  document.getElementById("cTitulo").textContent = titulo;
+  document.getElementById("cArtista").textContent = artista;
+  const letra = document.getElementById("cLetra");
+  letra.textContent = "Cargando letra…"; letra.classList.remove("con-acordes");
+  document.getElementById("paleta").hidden = true; document.getElementById("paletaAcc").hidden = true;
+  pintarEnlaces(`${artista} ${titulo}`);
+  cancionEl.scrollIntoView({ behavior: "smooth", block: "nearest" });
+  try {
+    const r = await fetch(`https://api.lyrics.ovh/v1/${encodeURIComponent(artista)}/${encodeURIComponent(titulo)}`);
+    const j = await r.json();
+    if (j.lyrics) renderLetra(artista, titulo, j.lyrics.replace(/\r/g, "").trim());
+    else letra.textContent = "No encontramos la letra de esta canción. Prueba con otro resultado o abre los acordes a la derecha.";
+  } catch {
+    letra.textContent = "No se pudo cargar la letra. Inténtalo de nuevo en un momento.";
+  }
+}
+
+/* ============ NOTAS SUELTAS ============ */
+/* tocarSlot decide qué suena en cada "casilla" de un rasgueo (golpe, nota
+   suelta, silencio...). Es la que usan los rasgueos, géneros y Crear música. */
+// n = acorde, s = símbolo del patrón (D, U, X, B, 1..3), vol = volumen, t = cuándo.
+function tocarSlot(n, s, vol, t = null) {
+  const when = t ?? audio().currentTime;
+  if (s === "D" || s === "U") return tocarAcorde(n, s, vol, when);
+  if (s === "X") { const m = instActual && muestras[instActual + "/apagado"]; return m ? tocarMuestra(m, when, vol * 4, 0.5) : tocarAcorde(n, "D", vol * 0.8, when, 0.06); }
+  if (s === "-") return;
+  if (instActual && !sintOk()) {
+    const base = muestras[instActual + "/" + n];
+    if (!base) return aviso(`Falta la grabación de ${n} en ${INSTS[instActual]}`);
+    return tocarMuestra(base, when, vol * (s === "B" ? 3 : 1.4), s === "B" ? 0.9 : 0.35);
+  }
+  if (familia() === "flauta") { const nt = notasFlauta(n), m = s === "B" ? nt[0] : nt[Number(s) % nt.length]; return flauta(hz(m + 12), when, vol * 1.2, 0.8); }
+  const c = datosAcorde(n), AB = c.abiertas || ABIERTAS;
+  const i = s === "B" ? c.frets.findIndex((f) => f >= 0) : c.frets.length - Number(s);
+  if (i < 0 || c.frets[i] < 0) return;
+  pluck(hz(AB[i] + c.frets[i]), when, vol * (0.9 + Math.random() * 0.25), 1.8);
+}
+
+/* ============ GÉNEROS ============ */
+/* Cada género trae su compás, sus progresiones y los rasgueos que le van. */
+// Datos de cada género: m = compás, b = bpm sugerido, r = rasgueos recomendados
+// (números = posición en PATRONES), p = progresiones de acordes.
+const GENEROS = [
+  { n: "Corridos tumbados", m: "4/4", b: 80, r: [2, 5, 0], q: ["Natanael Cano", "Peso Pluma", "Junior H", "Fuerza Regida"],
+    d: "Estilo mexicano actual que mezcla el corrido con el trap. Suele ir en tonos menores y con ritmo medio; la guitarra, el bajo sexto y el requinto llevan el protagonismo. Estas son progresiones comunes para practicar el estilo, no los acordes de una canción en específico (búscalas con los botones de abajo).",
+    p: [["Am","G","F","E"], ["Am","Dm","E","Am"], ["Em","C","G","D"]] },
+  { n: "Pop y rock", m: "4/4", b: 100, r: [2, 1], d: "Cuatro tiempos firmes. Estas progresiones están en miles de canciones.", p: [["C","G","Am","F"], ["G","D","Em","C"]] },
+  { n: "Balada romántica", m: "6/8", b: 60, r: [8, 9], d: "Lenta y suave. El 6/8 se siente como dos grupos de tres tiempos, con un vaivén.", p: [["C","G","Am","F"], ["Am","F","C","G"]] },
+  { n: "Vals y ranchera", m: "3/4", b: 90, r: [6, 7], d: "Tres tiempos: fuerte, suave, suave. Cuenta 1-2-3, 1-2-3.", p: [["G","D","G","C"], ["Am","Dm","E","Am"]] },
+  { n: "Norteño y polka", m: "2/4", b: 100, r: [10], d: "Dos tiempos alternando bajo y acorde. Se toca animado.", p: [["C","G7","C","F"]] },
+  { n: "Reggae", m: "4/4", b: 75, r: [4], d: "Los golpes caen en el contratiempo: la mano baja en silencio y suena al subir.", p: [["G","C","G","D"]] },
+  { n: "Blues", m: "4/4", b: 80, r: [0, 2], d: "Se basa en tres acordes con séptima. Tócalo con un poco de balanceo.", p: [["E","A","B7","E"]] }
+];
+const gTabs = document.getElementById("gTabs"), gPanel = document.getElementById("gPanel");
+function verGenero(i) {
+  const g = GENEROS[i];
+  gTabs.querySelectorAll("button").forEach((b, k) => b.setAttribute("aria-selected", k === i));
+  gPanel.innerHTML = `<h3 style="font-size:1.7rem">${g.n} <span class="chip">${g.m}</span></h3>
+    <p class="intro" style="margin:8px 0 18px">${g.d}</p>
+    ${g.p.map((a, pi) => `<div class="prog" style="margin-bottom:12px"><div class="cadena">${a.map((x) => `<span class="chip">${x}</span>`).join("")}</div>
+      ${g.r.map((r) => `<button type="button" class="accion sec" data-p="${pi}" data-r="${r}" style="margin:0 8px 8px 0">Tocar con: ${PATRONES[r].t} (${PATRONES[r].m || "4/4"})</button>`).join("")}</div>`).join("")}
+    <p class="msg" id="gLive"></p>
+    ${g.q ? `<p class="msg">Busca canciones del estilo: ${g.q.map((x) => `<button type="button" class="accion sec" data-q="${x}">${x}</button>`).join(" ")}</p>` : ""}
+    <button type="button" class="accion" id="gStop">Detener</button>`;
+  gPanel.querySelectorAll("[data-r]").forEach((b) => b.addEventListener("click", () => {
+    bpmEl.value = g.b; bpmVal.textContent = g.b;
+    cadena = g.p[+b.dataset.p]; iniciar(+b.dataset.r);
+  }));
+  gPanel.querySelectorAll("[data-q]").forEach((b) => b.addEventListener("click", () => {
+    qEl.value = b.dataset.q; document.getElementById("canciones").scrollIntoView(); form.requestSubmit();
+  }));
+  document.getElementById("gStop").addEventListener("click", detener);
+}
+GENEROS.forEach((g, i) => {
+  const b = document.createElement("button");
+  b.type = "button"; b.className = "accion sec"; b.setAttribute("role", "tab"); b.textContent = g.n;
+  b.addEventListener("click", () => { detener(); verGenero(i); });
+  gTabs.appendChild(b);
+});
+verGenero(0);
+
+/* ============ UKULELE Y POWER CHORDS ============ */
+/* Los botoncitos de la tarjeta de ukulele y de power chords. */
+const UKE = { C: [0,0,0,3], F: [2,0,1,0], Am: [2,0,0,0], G7: [0,2,1,2] };
+const UKE_ABIERTAS = [67, 60, 64, 69];
+Object.keys(UKE).forEach((n) => {
+  const b = document.createElement("button");
+  b.type = "button"; b.className = "accion sec"; b.title = UKE[n].join("-"); b.textContent = `${n} (${UKE[n].join("")})`;
+  b.addEventListener("click", () => { const t = audio().currentTime; UKE[n].forEach((f, i) => pluck(hz(UKE_ABIERTAS[i] + f), t + i * 0.025, 0.2, 1.4)); });
+  document.getElementById("ukeChips").appendChild(b);
+});
+document.querySelectorAll("[data-ac]").forEach((b) => b.addEventListener("click", () => tocarAcorde(b.dataset.ac, "D", 0.2)));
+
+/* ============ AFINADOR ============ */
+/* El afinador escucha el micrófono, saca la frecuencia (autocorrelación) y la
+   compara con la nota más cercana del instrumento elegido. Los cents dicen
+   qué tan desafinada está: 0 = perfecta, negativo = grave, positivo = aguda. */
+const INSTR = {
+  "Guitarra": [40,45,50,55,59,64], "Ukulele": [67,60,64,69], "Bajo": [28,33,38,43],
+  "Bajo sexto": [40,45,50,55,60,65], "Violín o mandolina": [55,62,69,76], "Cromático (cualquier nota)": null
+};
+const NOTAS = ["Do","Do#","Re","Re#","Mi","Fa","Fa#","Sol","Sol#","La","La#","Si"];
+const nombreNota = (m) => NOTAS[m % 12] + (Math.floor(m / 12) - 1);
+const selInstr = document.getElementById("selInstr"), afCuerdas = document.getElementById("afCuerdas");
+Object.keys(INSTR).forEach((k) => selInstr.add(new Option(k, k)));
+
+function tono(f) {
+  const a = audio(), t = a.currentTime, o = a.createOscillator(), g = a.createGain();
+  o.type = "sine"; o.frequency.value = f;
+  g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(0.25, t + 0.03); g.gain.exponentialRampToValueAtTime(0.0001, t + 2.5);
+  o.connect(g); g.connect(a.destination); o.start(t); o.stop(t + 2.6);
+}
+function pintarCuerdasAf() {
+  const m = INSTR[selInstr.value];
+  afCuerdas.innerHTML = m ? m.map((x) => `<button type="button" class="accion sec" data-m="${x}" aria-label="Escuchar ${nombreNota(x)}">${nombreNota(x)}</button>`).join("") : '<span class="msg">Modo cromático: toca cualquier nota y te digo cuál es.</span>';
+  afCuerdas.querySelectorAll("[data-m]").forEach((b) => b.addEventListener("click", () => tono(hz(+b.dataset.m))));
+}
+selInstr.addEventListener("change", pintarCuerdasAf);
+pintarCuerdasAf();
+
+// Detecta la nota que suena: busca en qué retraso la señal se parece más a sí misma.
+// Si el volumen es muy bajito devuelve -1 (ruido, no una nota).
+function detectarTono(buf, sr) {
+  let rms = 0; for (const v of buf) rms += v * v;
+  if (Math.sqrt(rms / buf.length) < 0.012) return -1;
+  const min = Math.floor(sr / 1000), max = Math.floor(sr / 30), c = new Float32Array(max + 2);
+  let m = 0;
+  for (let l = min; l <= max; l++) { let s = 0; for (let i = 0; i < buf.length - l; i++) s += buf[i] * buf[i + l]; c[l] = s; if (s > m) m = s; }
+  for (let l = min + 1; l < max; l++) {
+    if (c[l] > 0.9 * m && c[l] > c[l - 1] && c[l] >= c[l + 1]) {
+      const d = c[l - 1] - 2 * c[l] + c[l + 1];
+      return sr / (l + (d ? 0.5 * (c[l - 1] - c[l + 1]) / d : 0));
+    }
+  }
+  return -1;
+}
+
+let micStream = null, afTimer = null;
+const btnMic = document.getElementById("btnMic");
+function detenerMic() {
+  clearInterval(afTimer); afTimer = null;
+  if (micStream) micStream.getTracks().forEach((t) => t.stop());
+  micStream = null; btnMic.textContent = "Activar micrófono";
+  document.getElementById("afMsg").textContent = "Micrófono apagado.";
+}
+btnMic.addEventListener("click", async () => {
+  if (micStream) return detenerMic();
+  try {
+    micStream = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: false, noiseSuppression: false, autoGainControl: false } });
+  } catch {
+    document.getElementById("afMsg").textContent = "No pude usar el micrófono. Permite el acceso en el navegador (la página debe abrirse con https).";
+    return;
+  }
+  const a = audio(), an = a.createAnalyser(); an.fftSize = 4096;
+  a.createMediaStreamSource(micStream).connect(an);
+  const buf = new Float32Array(4096);
+  btnMic.textContent = "Apagar micrófono";
+  document.getElementById("afMsg").textContent = "Escuchando… toca una cuerda.";
+  afTimer = setInterval(() => {
+    an.getFloatTimeDomainData(buf);
+    const f = detectarTono(buf, a.sampleRate);
+    if (f < 0) return;
+    const mf = 69 + 12 * Math.log2(f / 440), lista = INSTR[selInstr.value];
+    const meta = lista ? lista.reduce((x, y) => (Math.abs(y - mf) < Math.abs(x - mf) ? y : x)) : Math.round(mf);
+    const cents = (mf - meta) * 100;
+    document.getElementById("afNota").textContent = nombreNota(meta);
+    document.getElementById("afHz").textContent = f.toFixed(1) + " Hz";
+    document.getElementById("aguja").style.left = (50 + Math.max(-50, Math.min(50, cents))) + "%";
+    document.getElementById("afMsg").textContent = Math.abs(cents) < 5 ? "¡Afinada!" : cents < 0 ? "Muy grave: sube la tensión de la cuerda" : "Muy aguda: afloja la cuerda";
+  }, 90);
+});
+
+/* ============ ACORDES SOBRE LA LETRA ============ */
+/* Elige un acorde de la paleta y haz clic en una palabra de la letra: el acorde
+   queda arriba de la palabra y se guarda en el navegador (localStorage). */
+let letraKey = "", marcas = {}, acActivo = "Am";
+const paletaChips = document.getElementById("paletaChips");
+["Borrar", ...Object.keys(ACORDES)].forEach((n) => {
+  const b = document.createElement("button");
+  b.type = "button"; b.className = "accion sec" + (n === acActivo ? " on" : ""); b.textContent = n;
+  b.addEventListener("click", () => {
+    acActivo = n === "Borrar" ? "" : n;
+    paletaChips.querySelectorAll("button").forEach((x) => x.classList.toggle("on", x === b));
+    if (acActivo) tocarAcorde(acActivo);
+  });
+  paletaChips.appendChild(b);
+});
+function guardarMarcas() { try { localStorage.setItem(letraKey, JSON.stringify(marcas)); } catch {} }
+function acordesDeLetra() {
+  return [...document.querySelectorAll("#cLetra .w")].map((w) => marcas[w.dataset.k]).filter(Boolean);
+}
+// Parte la letra en palabras clicables. Cada palabra puede llevar un acorde encima.
+function renderLetra(artista, titulo, texto) {
+  letraKey = "mg_" + artista + "|" + titulo;
+  try { marcas = JSON.parse(localStorage.getItem(letraKey) || "{}"); } catch { marcas = {}; }
+  const L = document.getElementById("cLetra");
+  L.classList.add("con-acordes"); L.innerHTML = "";
+  texto.split("\n").forEach((linea, li) => {
+    const d = document.createElement("div"); d.className = "ln";
+    if (!linea.trim()) d.innerHTML = "&nbsp;";
+    linea.split(/\s+/).filter(Boolean).forEach((w, wi) => {
+      const s = document.createElement("span");
+      s.className = "w"; s.dataset.k = li + ":" + wi;
+      s.innerHTML = '<b class="ch"></b><span class="t"></span>';
+      s.querySelector(".t").textContent = w;
+      s.querySelector(".ch").textContent = marcas[s.dataset.k] || "";
+      d.appendChild(s);
+    });
+    L.appendChild(d);
+  });
+  document.getElementById("paleta").hidden = false;
+  document.getElementById("paletaAcc").hidden = false;
+}
+document.getElementById("cLetra").addEventListener("click", (e) => {
+  const w = e.target.closest(".w"); if (!w) return;
+  const k = w.dataset.k;
+  if (acActivo) { marcas[k] = acActivo; tocarAcorde(acActivo); } else delete marcas[k];
+  w.querySelector(".ch").textContent = marcas[k] || "";
+  guardarMarcas();
+});
+document.getElementById("btnQuitar").addEventListener("click", () => {
+  marcas = {}; guardarMarcas();
+  document.querySelectorAll("#cLetra .ch").forEach((c) => (c.textContent = ""));
+});
+document.getElementById("btnLlevar").addEventListener("click", () => {
+  const ac = acordesDeLetra();
+  if (!ac.length) { setMsg("Primero pon al menos un acorde sobre la letra.", true); return; }
+  bars = ac.map((c) => ({ c, p: 2 }));
+  pintarBars();
+  document.getElementById("crear").scrollIntoView();
+  reproducirComp();
+});
+
+/* ============ CREAR MÚSICA ============ */
+/* El "secuenciador": una lista de compases (acorde + rasgueo). Para que no
+   suene robótico se programan las notas con un pequeño adelanto, y con
+   "Toque humano" se les mueve un pelín el tiempo y el volumen. */
+let bars = [{ c: "Am", p: 2 }, { c: "G", p: 2 }, { c: "F", p: 2 }, { c: "E", p: 2 }];
+const cBars = document.getElementById("cBars"), cPlay = document.getElementById("cPlay");
+const cBpm = document.getElementById("cBpm"), cLoop = document.getElementById("cLoop"), cHumano = document.getElementById("cHumano");
+const optsC = Object.keys(ACORDES).map((n) => `<option>${n}</option>`).join("");
+const optsP = PATRONES.map((p, i) => `<option value="${i}">${p.t} (${p.m || "4/4"})</option>`).join("");
+
+function pintarBars() {
+  cBars.innerHTML = bars.map((b, i) => `<div class="compas" data-i="${i}"><b>${i + 1}</b>
+    <select data-k="c" aria-label="Acorde del compás ${i + 1}">${optsC}</select>
+    <select data-k="p" aria-label="Rasgueo del compás ${i + 1}">${optsP}</select>
+    <button type="button" data-a="dup">Duplicar</button><button type="button" data-a="del">Quitar</button></div>`).join("");
+  cBars.querySelectorAll(".compas").forEach((el, i) => {
+    el.querySelector('[data-k="c"]').value = bars[i].c;
+    el.querySelector('[data-k="p"]').value = bars[i].p;
+  });
+}
+cBars.addEventListener("change", (e) => {
+  const el = e.target.closest(".compas"); if (!el) return;
+  const i = +el.dataset.i, k = e.target.dataset.k;
+  bars[i][k] = k === "p" ? +e.target.value : e.target.value;
+  if (k === "c") tocarAcorde(bars[i].c);
+});
+cBars.addEventListener("click", (e) => {
+  const a = e.target.dataset.a, el = e.target.closest(".compas"); if (!a || !el) return;
+  const i = +el.dataset.i;
+  if (a === "dup") bars.splice(i + 1, 0, { ...bars[i] });
+  if (a === "del") bars.splice(i, 1);
+  pintarBars();
+});
+document.getElementById("cAdd").addEventListener("click", () => { bars.push({ ...(bars[bars.length - 1] || { c: "C", p: 2 }) }); pintarBars(); });
+document.getElementById("cClear").addEventListener("click", () => { detenerComp(); bars = []; pintarBars(); });
+cBpm.addEventListener("input", () => { document.getElementById("cBpmVal").textContent = cBpm.value; if (cTimer) reproducirComp(); });
+
+let cTimer = null, cEvents = [], cIdx = 0, cStart = 0, cEnd = 0;
+// Convierte la lista de compases en una lista de "eventos" con su tiempo exacto.
+// Aquí se aplica el toque humano (un poquito de desorden a propósito).
+function armarEventos() {
+  const bpm = +cBpm.value, h = cHumano.checked;
+  let t = 0; cEvents = [];
+  bars.forEach((b, bi) => {
+    const pt = PATRONES[b.p], sub = pt.sub || 2, slot = 60 / bpm / sub;
+    pt.p.forEach((s, k) => {
+      let tt = t + k * slot;
+      if (h) { if (sub === 2 && k % 2 === 1) tt += slot * 0.07; tt += (Math.random() - 0.5) * 0.012; }
+      cEvents.push({ t: Math.max(0, tt), c: b.c, s, bar: bi, first: k === 0,
+        v: 0.2 * (k === 0 ? 1.12 : k % 2 === 0 ? 1 : 0.82) * (h ? 0.86 + Math.random() * 0.28 : 1) });
+    });
+    t += pt.p.length * slot;
+  });
+  cEnd = t; cEvents.sort((x, y) => x.t - y.t);
+}
+function marcarBar(i) {
+  cBars.querySelectorAll(".compas").forEach((el, k) => el.classList.toggle("on", k === i));
+}
+// Reproduce los compases. Cada 40 ms revisa qué notas tocan en los próximos 0.25 s
+// y las programa (así no se desfasa aunque la pestaña esté ocupada).
+function reproducirComp() {
+  detener(); detenerComp();
+  if (!bars.length) return;
+  armarEventos();
+  cStart = audio().currentTime + 0.12; cIdx = 0;
+  cPlay.textContent = "Detener";
+  cTimer = setInterval(() => {
+    const now = audio().currentTime;
+    while (cIdx < cEvents.length && cStart + cEvents[cIdx].t < now + 0.25) {
+      const e = cEvents[cIdx++];
+      tocarSlot(e.c, e.s, e.v, Math.max(cStart + e.t, now));
+      if (e.first) setTimeout(() => marcarBar(e.bar), Math.max(0, (cStart + e.t - now) * 1000));
+    }
+    if (cIdx >= cEvents.length && now + 0.25 > cStart + cEnd) {
+      if (cLoop.checked) { const prev = cEnd; armarEventos(); cStart += prev; cIdx = 0; }
+      else if (now > cStart + cEnd) detenerComp();
+    }
+  }, 40);
+}
+function detenerComp() {
+  clearInterval(cTimer); cTimer = null;
+  cPlay.textContent = "Reproducir";
+  cBars.querySelectorAll(".compas.on").forEach((el) => el.classList.remove("on"));
+}
+cPlay.addEventListener("click", () => (cTimer ? detenerComp() : reproducirComp()));
+pintarBars();
+
+/* ============ MI REPERTORIO (se guarda en el navegador) ============ */
+/* Tus arreglos de acordes. Solo se guardan en este navegador (localStorage). */
+const rLista = document.getElementById("rLista"), rMsg = document.getElementById("rMsg"), pMsg = document.getElementById("pMsg");
+const pGenero = document.getElementById("pGenero"), rGenero = document.getElementById("rGenero");
+[...GENEROS.map((g) => g.n), "Otro"].forEach((n) => { pGenero.add(new Option(n, n)); rGenero.add(new Option(n, n)); });
+let repertorio = [];
+
+// Antes de mostrar un arreglo guardado, revisa que los datos sean válidos.
+function cancionValida(c) {
+  return c && typeof c.titulo === "string" && c.titulo.length <= 80 && typeof c.artista === "string" && c.artista.length <= 80
+    && typeof c.bpm === "number" && c.bpm >= 50 && c.bpm <= 160
+    && Array.isArray(c.bars) && c.bars.length > 0 && c.bars.length <= 64
+    && c.bars.every((b) => b && ACORDES[b.c] && typeof b.p === "string");
+}
+async function listarCanciones() {
+  try { return JSON.parse(localStorage.getItem("mg_repertorio") || "[]"); } catch { return []; }
+}
+async function guardarCancion(c) {
+  const l = await listarCanciones();
+  l.unshift({ id: String(c.ts), ...c });
+  localStorage.setItem("mg_repertorio", JSON.stringify(l.slice(0, 100)));
+}
+
+function pintarRepertorio() {
+  const q = document.getElementById("rBusca").value.trim().toLowerCase(), g = rGenero.value;
+  const lista = repertorio.filter((c) => cancionValida(c)
+    && (!g || c.genero === g) && (!q || (c.titulo + " " + c.artista).toLowerCase().includes(q)));
+  rLista.innerHTML = "";
+  if (!lista.length) { rMsg.textContent = repertorio.length ? "Ninguna canción coincide con tu búsqueda." : "Aún no has guardado canciones. ¡Guarda la primera!"; return; }
+  rMsg.textContent = "Estas canciones se guardan en este dispositivo.";
+  lista.forEach((c) => {
+    const d = document.createElement("article"); d.className = "tarjeta";
+    const h = document.createElement("h3"); h.textContent = c.titulo;
+    const meta = document.createElement("p");
+    meta.textContent = c.artista + " · " + (c.genero || "Otro") + (c.autor ? " · por " + c.autor : "") + " · " + c.bpm + " bpm";
+    const chips = document.createElement("div");
+    chips.style.cssText = "display:flex;gap:6px;flex-wrap:wrap;margin:12px 0";
+    c.bars.slice(0, 16).forEach((b) => { const s = document.createElement("span"); s.className = "chip"; s.textContent = b.c; chips.appendChild(s); });
+    const btn = document.createElement("button"); btn.type = "button"; btn.className = "accion"; btn.textContent = "Tocar y editar";
+    btn.addEventListener("click", () => {
+      bars = c.bars.map((b) => { const i = PATRONES.findIndex((x) => x.t === b.p); return { c: b.c, p: i >= 0 ? i : 2 }; });
+      cBpm.value = c.bpm; document.getElementById("cBpmVal").textContent = c.bpm;
+      pintarBars(); document.getElementById("crear").scrollIntoView(); reproducirComp();
+    });
+    d.append(h, meta, chips, btn); rLista.appendChild(d);
+  });
+}
+async function cargarRepertorio() {
+  rMsg.textContent = "Cargando…";
+  try { repertorio = await listarCanciones(); pintarRepertorio(); }
+  catch { rMsg.textContent = "No se pudo cargar tu repertorio."; }
+}
+document.getElementById("rBusca").addEventListener("input", pintarRepertorio);
+rGenero.addEventListener("change", pintarRepertorio);
+
+document.getElementById("pubForm").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  if (!bars.length) { pMsg.textContent = "Primero arma tu canción en \"Crear música\"."; return; }
+  const ultimo = +localStorage.getItem("mg_ultimaPub") || 0;
+  if (Date.now() - ultimo < 20000) { pMsg.textContent = "Espera unos segundos antes de guardar otra canción."; return; }
+  const c = {
+    titulo: document.getElementById("pTitulo").value.trim(), artista: document.getElementById("pArtista").value.trim(),
+    autor: document.getElementById("pAutor").value.trim(), genero: pGenero.value, bpm: +cBpm.value,
+    bars: bars.map((b) => ({ c: b.c, p: PATRONES[b.p].t })), ts: Date.now()
+  };
+  if (!cancionValida(c)) { pMsg.textContent = "Revisa los datos de la canción."; return; }
+  const btn = document.getElementById("pBtn"); btn.disabled = true; pMsg.textContent = "Guardando…";
+  try {
+    await guardarCancion(c);
+    try { localStorage.setItem("mg_ultimaPub", String(Date.now())); } catch {}
+    pMsg.textContent = "¡Listo! Tu canción quedó guardada en tu repertorio.";
+    e.target.reset(); await cargarRepertorio();
+  } catch { pMsg.textContent = "No se pudo guardar. Revisa que tu navegador permita guardar datos."; }
+  finally { btn.disabled = false; }
+});
+document.getElementById("cPublicar").addEventListener("click", () => {
+  document.getElementById("repertorio").scrollIntoView(); document.getElementById("pTitulo").focus();
+});
+cargarRepertorio();
+
+
+/* ============ SONIDOS REALES (tus grabaciones) ============ */
+/* Aquí está lo más importante del audio profesional: en vez de sintetizar,
+   la página busca tus grabaciones en la carpeta sonidos/ y las reproduce.
+   Cómo se llaman los archivos:  sonidos/<instrumento>/<acorde>.mp3
+   (ver README.md para la lista completa). */
+const EXT = ["mp3", "wav", "m4a"];
+const INSTS = {
+  "ukulele-soprano": "Ukulele soprano", "ukulele-concierto": "Ukulele de concierto", "guitarra-clasica": "Guitarra clásica",
+  "guitarra-acustica": "Guitarra acústica", "guitarra-electrica": "Guitarra eléctrica", "flauta": "Flauta dulce"
+};
+const slug = (t) => t.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+const acordesDe = (inst) => Object.keys(ACORDES).filter((n) => inst === "guitarra-electrica" || !/5$/.test(n));
+/* Si es false, la página NO usa el sonido sintetizado cuando hay grabaciones en sonidos/lista.json.
+   Ponlo en true si quieres volver a permitirlo como respaldo. */
+const PERMITIR_SINTETIZADO = false;
+const muestras = {}, origen = {}, intentos = new Set(), extDe = {};
+let manifiesto = null;
+const manifiestoListo = (async () => {
+  try {
+    const r = await fetch("sonidos/lista.json", { cache: "no-cache" });
+    if (!r.ok) return;
+    const j = await r.json(); manifiesto = {};
+    (j.archivos || []).forEach((f) => { const m = String(f).match(/^(.*)\.(mp3|wav|m4a)$/i); if (m) manifiesto[m[1]] = m[2]; });
+  } catch {}
+})();
+const sintOk = () => PERMITIR_SINTETIZADO || !manifiesto || !Object.keys(manifiesto).length;
+let ultimoAviso = 0;
+function aviso(t) {
+  if (Date.now() - ultimoAviso < 1500) return; ultimoAviso = Date.now();
+  let el = document.getElementById("aviso");
+  if (!el) { el = document.createElement("div"); el.id = "aviso"; el.setAttribute("role", "status"); document.body.appendChild(el); }
+  el.textContent = t; el.classList.add("ver"); clearTimeout(el._t); el._t = setTimeout(() => el.classList.remove("ver"), 2600);
+}
+let instActual = "";
+try { instActual = localStorage.getItem("mg_inst") || ""; if (!INSTS[instActual]) instActual = ""; } catch {}
+
+/* Guardado local (solo en este navegador) */
+function abrirDB() {
+  return new Promise((res, rej) => { const r = indexedDB.open("mongui-sonidos", 1); r.onupgradeneeded = () => r.result.createObjectStore("a"); r.onsuccess = () => res(r.result); r.onerror = () => rej(r.error); });
+}
+async function dbGet(k) {
+  try { const db = await abrirDB(); return await new Promise((res) => { const q = db.transaction("a").objectStore("a").get(k); q.onsuccess = () => res(q.result || null); q.onerror = () => res(null); }); } catch { return null; }
+}
+async function dbSet(k, v) {
+  try { const db = await abrirDB(); await new Promise((res, rej) => { const t = db.transaction("a", "readwrite"); t.objectStore("a").put(v, k); t.oncomplete = res; t.onerror = () => rej(); }); return true; } catch { return false; }
+}
+async function dbClear() {
+  try { const db = await abrirDB(); await new Promise((res) => { const t = db.transaction("a", "readwrite"); t.objectStore("a").clear(); t.oncomplete = res; t.onerror = res; }); } catch {}
+}
+async function decodificar(ab) { try { return await audio().decodeAudioData(ab); } catch { return null; } }
+
+/* Busca primero lo subido en este navegador y luego el archivo de la carpeta sonidos/ */
+// Busca un audio: primero lo que subiste en este navegador, luego la carpeta sonidos/.
+// Si hay lista.json, solo pide los archivos que existen (cero errores 404).
+async function cargarClave(path, forzar = false) {
+  if (!forzar && path in muestras) return muestras[path];
+  if (!forzar && intentos.has(path)) return null;
+  intentos.add(path);
+  const loc = await dbGet(path);
+  if (loc) { const b = await decodificar(await loc.blob.arrayBuffer()); if (b) { muestras[path] = b; origen[path] = "local"; return b; } }
+  await manifiestoListo;
+  for (const e of (manifiesto ? (manifiesto[path] ? [manifiesto[path]] : []) : EXT)) {
+    try {
+      const r = await fetch(`sonidos/${path}.${e}`);
+      if (r.ok) { const b = await decodificar(await r.arrayBuffer()); if (b) { muestras[path] = b; origen[path] = "sitio"; extDe[path] = e; return b; } }
+    } catch {}
+  }
+  return null;
+}
+async function cargarInstrumento(inst) {
+  const nombres = acordesDe(inst);
+  await Promise.all([...nombres.flatMap((n) => [cargarClave(`${inst}/${n}`), cargarClave(`${inst}/${n}-arriba`)]), cargarClave(`${inst}/apagado`)]);
+  return nombres.filter((n) => muestras[`${inst}/${n}`]).length;
+}
+
+/* Reproducción de una muestra */
+let chokePrev = null;
+// Reproduce una grabación. Si llega un acorde nuevo, el anterior se apaga con suavidad
+// (como cuando cambias de acorde y paras las cuerdas con la mano).
+function tocarMuestra(buf, when, vol, dur, largo = false) {
+  const a = audio(), src = a.createBufferSource(), g = a.createGain();
+  src.buffer = buf;
+  if (!largo && chokePrev) chokePrev.gain.setTargetAtTime(0.0001, when, 0.18);
+  g.gain.setValueAtTime(vol, when);
+  const fin = when + (largo ? buf.duration : dur < 0.2 ? dur : Math.min(buf.duration, 3));
+  g.gain.setTargetAtTime(0.0001, fin, dur < 0.2 ? 0.012 : 0.15);
+  src.connect(g); g.connect(bus());
+  src.start(when); src.stop(when + buf.duration + 0.1);
+  if (!largo) chokePrev = g;
+}
+// Devuelve la grabación de un acorde. Para el rasgueo hacia arriba usa "-arriba"
+// si existe; si no, reutiliza la de abajo más suavecita.
+function muestraDe(nombre, dir) {
+  if (!instActual) return null;
+  const base = muestras[instActual + "/" + nombre];
+  if (!base) return null;
+  if (dir === "U") {
+    const up = muestras[instActual + "/" + nombre + "-arriba"];
+    return up ? { buf: up, g: 1 } : { buf: base, g: 0.6, corto: true };
+  }
+  return { buf: base, g: 1 };
+}
+
+/* Selectores de sonido (acordes, rasgueos y crear música) */
+const selsInst = [];
+function poblarSel(sel) {
+  sel.innerHTML = "";
+  if (sintOk()) sel.add(new Option("Sintetizado", ""));
+  Object.entries(INSTS).forEach(([k, v]) => sel.add(new Option(v, k)));
+  sel.value = instActual;
+}
+document.querySelectorAll(".slotInst").forEach((sl) => {
+  const lab = document.createElement("label");
+  lab.innerHTML = 'Sonido <select class="selInst"></select><small class="instEst" style="color:var(--gris)"></small>';
+  const sel = lab.querySelector("select");
+  poblarSel(sel);
+  sel.addEventListener("change", () => elegirInst(sel.value));
+  sl.replaceWith(lab); selsInst.push(sel);
+});
+function estadoInst(t) { document.querySelectorAll(".instEst").forEach((el) => (el.textContent = t)); }
+// Cambia de instrumento: carga sus audios, redibuja los acordes y avisa cuántos hay.
+async function elegirInst(v) {
+  instActual = v; selsInst.forEach((x) => (x.value = v));
+  try { localStorage.setItem("mg_inst", v); } catch {}
+  renderAcordes();
+  if (!v) { estadoInst(""); pintarDemos(); return; }
+  estadoInst("Cargando…");
+  const n = await cargarInstrumento(v), total = acordesDe(v).length;
+  estadoInst(n ? `${n} de ${total} acordes con tu sonido` : "Sin audios todavía: se usa el sintetizado");
+  pintarDemos();
+}
+if (instActual) elegirInst(instActual); else renderAcordes();
+
+/* Panel para subir audios */
+const sInst = document.getElementById("sInst"), sGrid = document.getElementById("sGrid"), rGrid = document.getElementById("rGrid"), sMsg = document.getElementById("sMsg");
+Object.entries(INSTS).forEach(([k, v]) => sInst.add(new Option(v, k)));
+const estadoDe = (p) => (origen[p] === "local" ? "✓ en este navegador" : origen[p] === "sitio" ? "✓ en el sitio" : "falta");
+function filaHTML(path, titulo) {
+  return `<div class="fila"><span style="min-width:86px">${titulo}</span>
+    <label class="accion sec">Subir<input type="file" accept="audio/*" data-path="${path}"></label>
+    <button type="button" class="accion sec" data-play="${path}" aria-label="Escuchar">▶</button>
+    <button type="button" class="accion sec" data-dl="${path}" aria-label="Descargar con nombre correcto">⬇</button>
+    <small data-est="${path}"></small></div>`;
+}
+function refrescarEstados() {
+  document.querySelectorAll("[data-est]").forEach((el) => { const p = el.dataset.est; el.textContent = estadoDe(p); el.className = origen[p] ? "ok" : ""; });
+}
+async function pintarPanel() {
+  const inst = sInst.value, nombres = acordesDe(inst);
+  sGrid.innerHTML = nombres.map((n) => `<article class="tarjeta"><h3>${n}</h3><span class="ruta">sonidos/${inst}/${n}.mp3</span>
+      ${filaHTML(`${inst}/${n}`, "↓ Abajo")}${filaHTML(`${inst}/${n}-arriba`, "↑ Arriba")}</article>`).join("")
+    + `<article class="tarjeta"><h3>Golpe apagado</h3><span class="ruta">sonidos/${inst}/apagado.mp3</span>${filaHTML(`${inst}/apagado`, "× Apagado")}</article>`;
+  rGrid.innerHTML = PATRONES.map((pt) => `<article class="tarjeta"><h3>${pt.t} (${pt.m || "4/4"})</h3><span class="ruta">sonidos/${inst}/rasgueos/${slug(pt.t)}.mp3</span>${filaHTML(`${inst}/rasgueos/${slug(pt.t)}`, "Grabación")}</article>`).join("");
+  refrescarEstados();
+  await Promise.all([cargarInstrumento(inst), ...PATRONES.map((pt) => cargarClave(`${inst}/rasgueos/${slug(pt.t)}`))]);
+  refrescarEstados();
+}
+sInst.addEventListener("change", pintarPanel);
+
+// Lo que pasa cuando subes un audio en "Mis sonidos": lo valida, lo guarda
+// en IndexedDB y lo deja listo para escucharlo.
+async function subirArchivo(input) {
+  const f = input.files[0]; if (!f) return;
+  const path = input.dataset.path;
+  const buf = await decodificar(await f.arrayBuffer());
+  if (!buf) { sMsg.textContent = "No pude leer ese audio. Usa mp3, wav o m4a."; sMsg.className = "msg error"; return; }
+  const ext = ((f.name.split(".").pop() || "mp3").toLowerCase().replace(/[^a-z0-9]/g, "")) || "mp3";
+  const ok = await dbSet(path, { blob: f, ext });
+  muestras[path] = buf; origen[path] = "local";
+  sMsg.className = "msg";
+  sMsg.textContent = ok ? "Audio cargado. Pulsa ⬇ para bajarlo con el nombre correcto y ponerlo en la carpeta sonidos." : "Se cargó, pero tu navegador no pudo guardarlo: se perderá al cerrar la página.";
+  refrescarEstados();
+    tocarMuestra(buf, audio().currentTime, 0.9, 3, true);
+  if (path.includes("/rasgueos/")) pintarDemos();
+  if (instActual) elegirInst(instActual);
+  input.value = "";
+}
+async function descargar(path) {
+  const d = await dbGet(path);
+  if (!d) { sMsg.className = "msg error"; sMsg.textContent = "Ese audio no está subido en este navegador; si ya está en el sitio, no hace falta descargarlo."; return; }
+  const a = document.createElement("a"), url = URL.createObjectURL(d.blob);
+  a.href = url; a.download = path.split("/").pop() + "." + d.ext;
+  document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(url), 2000);
+}
+document.getElementById("sonidos").addEventListener("change", (e) => { if (e.target.matches("input[type=file]")) subirArchivo(e.target); });
+document.getElementById("sonidos").addEventListener("click", (e) => {
+  const b = e.target.closest("button"); if (!b) return;
+  if (b.dataset.play) { const m = muestras[b.dataset.play]; if (m) tocarMuestra(m, audio().currentTime, 0.9, 3, true); else { sMsg.className = "msg"; sMsg.textContent = "Ese audio todavía no existe."; } }
+  if (b.dataset.dl) descargar(b.dataset.dl);
+});
+document.getElementById("sDescTodo").addEventListener("click", () => {
+  const rutas = [...document.querySelectorAll("#sGrid [data-dl]")].map((x) => x.dataset.dl).filter((p) => origen[p] === "local");
+  if (!rutas.length) { sMsg.className = "msg error"; sMsg.textContent = "No hay audios subidos en este navegador para este instrumento."; return; }
+  rutas.forEach((p, i) => setTimeout(() => descargar(p), i * 350));
+  sMsg.className = "msg"; sMsg.textContent = `Descargando ${rutas.length} archivo(s). Si el navegador pregunta, permite las descargas múltiples.`;
+});
+document.getElementById("sBorrar").addEventListener("click", async () => {
+  if (!confirm("¿Borrar los audios que subiste en este navegador? Los que están en la carpeta sonidos del sitio no se tocan.")) return;
+  for (const k of await dbKeys()) if (!String(k).startsWith("cancion/")) await dbDel(k);
+  Object.keys(origen).filter((k) => origen[k] === "local").forEach((k) => { delete muestras[k]; delete origen[k]; });
+  intentos.clear();
+  await pintarPanel(); pintarDemos(); if (instActual) elegirInst(instActual);
+  sMsg.className = "msg"; sMsg.textContent = "Audios de este navegador borrados.";
+});
+
+/* Grabaciones de rasgueos del instrumento elegido, en la sección Rasgueos */
+function pintarDemos() {
+  tarjetas.forEach((d, i) => {
+    const cont = d.querySelector(".patron-btns");
+    cont.querySelectorAll(".demoBtn").forEach((x) => x.remove());
+    if (!instActual) return;
+    const inst = instActual;
+    cargarClave(`${inst}/rasgueos/${slug(PATRONES[i].t)}`).then((buf) => {
+      if (!buf || inst !== instActual || cont.querySelector(".demoBtn")) return;
+      const b = document.createElement("button");
+      b.type = "button"; b.className = "accion sec demoBtn"; b.textContent = "Escuchar grabación";
+      b.addEventListener("click", () => { detener(); detenerComp(); tocarMuestra(buf, audio().currentTime, 0.9, 30, true); });
+      cont.appendChild(b);
+    });
+  });
+}
+pintarDemos();
+pintarPanel();
+
+/* ============ LISTA DE SONIDOS (lista.json) ============ */
+/* lista.json le dice a la página qué audios existen, así no tiene que adivinar
+   (y no llena la consola de errores 404). Lo genera el botón de la página. */
+async function dbKeys() {
+  try { const db = await abrirDB(); return await new Promise((res) => { const q = db.transaction("a").objectStore("a").getAllKeys(); q.onsuccess = () => res(q.result || []); q.onerror = () => res([]); }); } catch { return []; }
+}
+document.getElementById("sLista").addEventListener("click", async () => {
+  await manifiestoListo;
+  const mapa = { ...(manifiesto || {}) };
+  Object.keys(origen).forEach((k) => { if (origen[k] === "sitio" && extDe[k]) mapa[k] = extDe[k]; });
+  for (const k of await dbKeys()) { if (String(k).startsWith("cancion/")) continue; const d = await dbGet(k); if (d) mapa[k] = d.ext; }
+  const lista = Object.entries(mapa).map(([k, e]) => k + "." + e).sort();
+  const url = URL.createObjectURL(new Blob([JSON.stringify({ archivos: lista }, null, 2)], { type: "application/json" }));
+  const a = document.createElement("a"); a.href = url; a.download = "lista.json"; document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 2000);
+  sMsg.className = "msg"; sMsg.textContent = `lista.json con ${lista.length} archivo(s). Ponlo en la carpeta sonidos junto a los audios.`;
+});
+/* Cuando se sabe qué grabaciones hay, se quita el sintetizado y se elige el primer instrumento con audios */
+manifiestoListo.then(() => {
+  selsInst.forEach(poblarSel);
+  if (!sintOk() && !instActual) {
+    const prim = Object.keys(INSTS).find((k) => Object.keys(manifiesto).some((p) => p.startsWith(k + "/")));
+    if (prim) elegirInst(prim);
+  }
+  pintarPanel();
+});
+
+/* ============ CANCIONES GRABADAS ============ */
+/* Subes una canción, se guarda en tu navegador (IndexedDB) y la ves al instante.
+   Al darle "Descargar para publicar" se baja el audio + canciones.json para
+   ponerlos en la carpeta canciones/ del repositorio. */
+async function dbDel(k) {
+  try { const db = await abrirDB(); await new Promise((res) => { const t = db.transaction("a", "readwrite"); t.objectStore("a").delete(k); t.oncomplete = res; t.onerror = res; }); } catch {}
+}
+const NOM_INST = { ...INSTS, otro: "Otro" };
+const scForm = document.getElementById("scForm"), scMsg = document.getElementById("scMsg"), scLista = document.getElementById("scLista");
+const scBusca = document.getElementById("scBusca"), scFiltro = document.getElementById("scFiltro"), scInfo = document.getElementById("scInfo");
+Object.entries(NOM_INST).forEach(([k, v]) => { document.getElementById("scInst").add(new Option(v, k)); scFiltro.add(new Option(v, k)); });
+let cancionesSitio = [], cancionesLocal = [], urlsLocal = [];
+const idDe = (c) => c.id + "." + c.ext;
+
+async function leerLocales() {
+  const out = [];
+  for (const k of await dbKeys()) {
+    if (!String(k).startsWith("cancion/")) continue;
+    const d = await dbGet(k);
+    if (d && d.meta && d.blob) out.push({ ...d.meta, blob: d.blob, local: true });
+  }
+  return out.sort((a, b) => b.ts - a.ts);
+}
+// Lee canciones/canciones.json (las publicadas) y junta con las que subiste tú.
+async function cargarCanciones() {
+  try {
+    const r = await fetch("canciones/canciones.json", { cache: "no-cache" });
+    if (r.ok) {
+      const j = await r.json();
+      cancionesSitio = (j.canciones || []).filter((c) => c && typeof c.archivo === "string" && typeof c.titulo === "string" && typeof c.artista === "string")
+        .map((c) => ({ ...c, inst: c.instrumento || "otro" }));
+    }
+  } catch {}
+  cancionesLocal = await leerLocales();
+  pintarCanciones();
+}
+// Dibuja las tarjetas de canciones con su reproductor, respetando el buscador y el filtro.
+function pintarCanciones() {
+  urlsLocal.forEach((u) => URL.revokeObjectURL(u)); urlsLocal = [];
+  const q = scBusca.value.trim().toLowerCase(), f = scFiltro.value;
+  const enSitio = new Set(cancionesSitio.map((c) => c.archivo));
+  const items = [...cancionesLocal.map((c) => ({ ...c, publicada: enSitio.has(idDe(c)) })), ...cancionesSitio.filter((c) => !cancionesLocal.some((l) => idDe(l) === c.archivo))];
+  const lista = items.filter((c) => (!f || c.inst === f) && (!q || (c.titulo + " " + c.artista).toLowerCase().includes(q)));
+  scLista.innerHTML = "";
+  scInfo.textContent = lista.length ? "" : items.length ? "Ninguna canción coincide con tu búsqueda." : "Aún no hay canciones. ¡Sube la primera!";
+  lista.forEach((c) => {
+    const d = document.createElement("article"); d.className = "tarjeta";
+    const h = document.createElement("h3"); h.textContent = c.titulo;
+    const p = document.createElement("p"); p.textContent = c.artista + " · " + (NOM_INST[c.inst] || "Otro") + (c.local && !c.publicada ? " · solo en este navegador" : "");
+    const a = document.createElement("audio"); a.controls = true; a.preload = "none"; a.style.cssText = "width:100%;margin-top:12px";
+    if (c.local) { const u = URL.createObjectURL(c.blob); urlsLocal.push(u); a.src = u; } else a.src = "canciones/" + encodeURI(c.archivo);
+    d.append(h, p, a);
+    if (c.local) {
+      const b = document.createElement("button"); b.type = "button"; b.className = "accion sec"; b.style.marginTop = "10px"; b.textContent = "Quitar de este navegador";
+      b.addEventListener("click", async () => { await dbDel("cancion/" + c.id); cancionesLocal = await leerLocales(); pintarCanciones(); });
+      d.appendChild(b);
+    }
+    scLista.appendChild(d);
+  });
+}
+scBusca.addEventListener("input", pintarCanciones); scFiltro.addEventListener("change", pintarCanciones);
+
+scForm.addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const f = document.getElementById("scArchivo").files[0]; if (!f) return;
+  if (!/^audio\//.test(f.type) && !/\.(mp3|m4a|wav|ogg|aac)$/i.test(f.name)) { scMsg.textContent = "Ese archivo no parece un audio. Usa mp3, m4a o wav."; return; }
+  if (f.size > 25 * 1024 * 1024) { scMsg.textContent = "Pesa más de 25 MB: GitHub no deja subirlo desde el navegador. Comprímelo o recórtalo."; return; }
+  const titulo = document.getElementById("scTitulo").value.trim(), artista = document.getElementById("scArtista").value.trim(), inst = document.getElementById("scInst").value;
+  const ext = ((f.name.split(".").pop() || "m4a").toLowerCase().replace(/[^a-z0-9]/g, "")) || "m4a";
+  const usados = new Set([...cancionesLocal.map((c) => c.id), ...cancionesSitio.map((c) => c.archivo.replace(/\.[^.]+$/, ""))]);
+  const base = slug(artista + " " + titulo) || "cancion"; let id = base, n = 2;
+  while (usados.has(id)) id = base + "-" + n++;
+  const ok = await dbSet("cancion/" + id, { meta: { id, titulo, artista, inst, ext, ts: Date.now() }, blob: f });
+  scMsg.textContent = ok ? "¡Listo! La canción ya aparece abajo. Pulsa \"Descargar para publicar\" para que todos la escuchen." : "No se pudo guardar en este navegador.";
+  if (ok) { scForm.reset(); cancionesLocal = await leerLocales(); pintarCanciones(); }
+});
+document.getElementById("scPub").addEventListener("click", async () => {
+  cancionesLocal = await leerLocales();
+  if (!cancionesLocal.length) { scMsg.textContent = "No hay canciones nuevas por publicar."; return; }
+  const bajar = (blob, nombre) => { const u = URL.createObjectURL(blob), a = document.createElement("a"); a.href = u; a.download = nombre; document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(u), 2000); };
+  const todas = [...cancionesSitio.filter((c) => !cancionesLocal.some((l) => idDe(l) === c.archivo)).map((c) => ({ archivo: c.archivo, titulo: c.titulo, artista: c.artista, instrumento: c.inst })),
+    ...cancionesLocal.map((c) => ({ archivo: idDe(c), titulo: c.titulo, artista: c.artista, instrumento: c.inst }))];
+  cancionesLocal.forEach((c, i) => setTimeout(() => bajar(c.blob, idDe(c)), i * 400));
+  setTimeout(() => bajar(new Blob([JSON.stringify({ canciones: todas }, null, 2)], { type: "application/json" }), "canciones.json"), cancionesLocal.length * 400);
+  scMsg.textContent = `Descargando ${cancionesLocal.length} canción(es) y canciones.json. Ponlos todos en la carpeta canciones de tu repositorio.`;
+});
+cargarCanciones();
+
+/* ============ MONITOS ============ */
+/* Detalles bonitos: monitos junto a cada título y el mono de la portada
+   que salta y toca un acorde al azar. 🐒 */
+document.querySelectorAll("section.bloque > .wrap > h2").forEach((h, i) => {
+  const sv = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+  sv.setAttribute("class", "ico sticker"); sv.setAttribute("viewBox", "0 0 120 120"); sv.setAttribute("aria-hidden", "true");
+  sv.style.setProperty("--r", (i % 2 ? 7 : -7) + "deg");
+  sv.innerHTML = '<use href="#mono-cara"/>';
+  h.prepend(sv);
+});
+document.querySelector(".mono-hero").addEventListener("click", (e) => {
+  const b = e.currentTarget, ac = ["C", "G", "Am", "F", "Em", "D"][Math.floor(Math.random() * 6)];
+  tocarAcorde(ac);
+  b.classList.remove("salta"); void b.offsetWidth; b.classList.add("salta");
+  b.querySelector(".bocadillo").textContent = ac + "!";
+});
+</script>
+</body>
+</html>
